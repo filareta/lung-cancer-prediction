@@ -160,7 +160,6 @@ def conv_net(x, weights, biases, dropout):
     conv_shape = conv2.get_shape().as_list()
     print("After second: ", conv_shape)
 
-
     # Convolution Layer
     conv3 = conv3d(conv2, weights['wc3'], biases['bc3'], padding='VALID')
     # Max Pooling (down-sampling)
@@ -173,9 +172,9 @@ def conv_net(x, weights, biases, dropout):
     # # Max Pooling (down-sampling)
     # conv4 = maxpool3d(conv4, padding='VALID')
 
-    conv5 = conv3d(conv4, weights['wc5'], biases['bc5'])
+    conv5 = conv3d(conv4, weights['wc5'], biases['bc5'], padding='VALID')
     # # Max Pooling (down-sampling)
-    conv5 = maxpool3d(conv5)
+    conv5 = maxpool3d(conv5, padding='VALID')
     
     conv_shape = conv5.get_shape().as_list()
     print("SHAPE of the last convolution layer after max pooling: {}, new shape {}".format(
@@ -223,7 +222,7 @@ new_x, new_y, new_z = calculate_conv_output_size(n_x, n_y, n_z,
                                                  filters,
                                                  padding_types)
 
-out_conv_size = int(new_x * new_y * new_z * third_depth)
+out_conv_size = int(new_x * new_y * new_z * last_depth)
 print("Last conv net output size should be {}".format(out_conv_size))
 
 
@@ -314,8 +313,6 @@ with tf.Session() as sess:
             train_pred.extend(predictions)
             train_labels.extend(batch_labels)
 
-            del batch_data
-
         if step % save_step == 0:
             print("Store model snaphost!")
             saver.save(sess, './nodules-cl' + str(step) + '.ckpt')
@@ -332,10 +329,6 @@ with tf.Session() as sess:
 
         train_errors_per_epoch.append(train_log_loss)
 
-        del train_errors
-        del train_pred
-        del train_labels
-
         print("<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>")
         validation_pred = []
         validation_labels = []
@@ -348,7 +341,6 @@ with tf.Session() as sess:
             validation_pred.extend(batch_pred)
             validation_labels.extend(validation_label)
             index += batch_size
-            del validation_batch
         
         validation_acc = accuracy(np.stack(validation_pred), np.stack(validation_labels))
         print('Validation accuracy: %.1f%%' % validation_acc)
@@ -366,9 +358,6 @@ with tf.Session() as sess:
             break;
 
         validation_errors.append(validation_log_loss)
-
-        del validation_pred
-        del validation_labels
 
     saver.save(sess, './nodules-cl.ckpt')
     print("Model saved!!!")
@@ -402,7 +391,6 @@ with tf.Session() as sess:
                 print("Output {} for patient with id {}, max is {}.".format(max_prob, 
                                                                             patient,
                                                                             ind_value[0]))
-                del test_img
 
             else:
                 print("Corrupted test image, incorrect shape for patient {}".format(patient))
