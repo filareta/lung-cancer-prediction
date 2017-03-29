@@ -351,12 +351,6 @@ with tf.Session() as sess:
             print("Low enought log loss validation error, terminate!")
             break;
 
-        if high_error_increase(validation_errors[-last_errors:], validation_log_loss):
-            print("Validation log loss has increased more than the allowed threshold for the past iterations, terminate!")
-            print("Last iterations: ", validation_errors[-last_errors:])
-            print("Current validation error: ", validation_log_loss)
-            break;
-
         validation_errors.append(validation_log_loss)
 
     saver.save(sess, './nodules-cl.ckpt')
