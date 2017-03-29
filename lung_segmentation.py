@@ -9,12 +9,9 @@ from skimage.segmentation import clear_border
 
 from scipy import ndimage as ndi
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import dicom
 import scipy.misc
 import numpy as np
 import compress_dicoms as cd
-import dicom_processing as dp
 
 
 threshold = -420

@@ -13,7 +13,7 @@ import lung_segmentation as ls
 
 
 INPUT_DIR = './'
-SAMPLE_IMGS = '../kaggle-data/stage1'
+SAMPLE_IMGS = 'D:/Fil/stage1'
 COMPRESSED_DICOMS = INPUT_DIR + '/segmented_morph_op'
 
 NUM_PROCESSES = multiprocessing.cpu_count()
