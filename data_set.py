@@ -5,30 +5,16 @@ import random as rnd
 import input_dicoms as ind
 import compress_dicoms as cd
 import patient_loader as pl
-
-
-DEFAULT_BATCH_SIZE = 8
-LABELS_INPUT_DIR = cd.INPUT_DIR + '/input/stage1_labels.csv'
-EXACT_TEST_IDS = cd.INPUT_DIR + '/input/stage1_sample_submission.csv'
-COLUMN_NAME = 'cancer'
-IMG_SHAPE = (ind.HM_SLICES, ind.IMAGE_PXL_SIZE, ind.IMAGE_PXL_SIZE, 1)
-
-VALIDATION_IDS = cd.INPUT_DIR + '/input/validation_data.csv'
-TRAINING_IDS = cd.INPUT_DIR + '/input/training_data.csv'
-
-# [1, 0]-> no cancer
-# [0, 1] -> cancer
-CANCER_CLS = 1
-NO_CANCER_CLS = 0
+import config
 
 
 class DataLoader(object):
     def __init__(self, 
                 images_loader=None, 
-                labels_input=LABELS_INPUT_DIR,
-                exact_tests=EXACT_TEST_IDS,
-                train_set=TRAINING_IDS,
-                validation_set=VALIDATION_IDS):
+                labels_input=config.LABELS_INPUT_DIR,
+                exact_tests=config.EXACT_TEST_IDS,
+                train_set=config.TRAINING_IDS,
+                validation_set=config.VALIDATION_IDS):
         self._images_loader = images_loader or pl.NodulesScansLoader()
         self._labels = ind.read_csv(labels_input)
 
@@ -48,7 +34,7 @@ class DataLoader(object):
         self._exact_tests_count = len(self._exact_tests)
 
     def _double_positive_class_data(self):
-        positive = self.patients_from_class(self._train_set, CANCER_CLS)
+        positive = self.patients_from_class(self._train_set, config.CANCER_CLS)
         print("Patients with cancer are: {}".format(len(positive)))
         self._train_set.extend(positive)
 
@@ -79,7 +65,7 @@ class DataLoader(object):
             #[first class=no cancer=0, second class=cancer=1]
             # [1, 0]-> no cancer
             # [0, 1] -> cancer
-            clazz = self._labels.get_value(patient_id, COLUMN_NAME)
+            clazz = self._labels.get_value(patient_id, config.COLUMN_NAME)
             result[clazz] = 1.0
             return result
         except KeyError as e:
@@ -89,7 +75,7 @@ class DataLoader(object):
 
     def has_label(self, patient):
         try:
-            self._labels.get_value(patient, COLUMN_NAME)
+            self._labels.get_value(patient, config.COLUMN_NAME)
         except KeyError as e:
             return False
         return True
@@ -108,7 +94,7 @@ class DataLoader(object):
 
     def load_image(self, patient):
         scans = self._images_loader.load_scans(patient)
-        return scans.reshape(*IMG_SHAPE)
+        return scans.reshape(*config.IMG_SHAPE)
 
 
 class DataSet(object):
@@ -120,7 +106,7 @@ class DataSet(object):
         self._num_samples = len(self._data_set)
 
     #TODO: Simplify since unlabeled data is already filtered here
-    def next_batch(self, batch_size=DEFAULT_BATCH_SIZE):
+    def next_batch(self, batch_size):
         assert batch_size <= self._num_samples
         start = self._index_in_epoch
 

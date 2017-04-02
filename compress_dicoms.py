@@ -10,17 +10,14 @@ import dicom
 import pylab
 import scipy.ndimage as spi
 import lung_segmentation as ls
+import config
 
-
-INPUT_DIR = './'
-SAMPLE_IMGS = 'D:/Fil/stage1'
-COMPRESSED_DICOMS = INPUT_DIR + '/segmented_morph_op'
 
 NUM_PROCESSES = multiprocessing.cpu_count()
 
 
 def load_scans(patient):
-    patient_dir = os.path.join(SAMPLE_IMGS, patient)
+    patient_dir = os.path.join(config.SAMPLE_IMGS, patient)
     slices = [dicom.read_file(os.path.join(patient_dir, scan)) for scan in os.listdir(patient_dir)]
 
     # ImagePositionPatient[2] equals the slice location == Z coordinate of the scan
@@ -99,9 +96,8 @@ def process_patients_chunk(patients):
 
             segmented_lungs = np.stack([ls.get_segmented_lungs(image)
                                         for image in patient_imgs])
-            # Excluse resampling for now, could be done after if needed.
-            # resizing and normalization could be pretraining transforms
-            store_patient_image(COMPRESSED_DICOMS, segmented_lungs, patient)
+            
+            store_patient_image(config.COMPRESSED_DICOMS, segmented_lungs, patient)
             print("====== Store patient {} image ======.".format(patient))
         except Exception as e:
             print("An error occured while processing {}! {}".format(patient, e))
@@ -122,7 +118,8 @@ def process_dicom_set(input_dir):
             print("Submit {} batch to executor!". format(i))
             futures.append(f)
         except Exception as e:
-            print("An error occured while processing data chunk with size {} on iteration {}: {}".format(len(data), str(i), e))
+            print("An error occured while processing data chunk with size {} on iteration {}: {}".format(
+                len(data), str(i), e))
 
     print(concurrent.futures.wait(futures)) # By defaults waits for all
     print("Shutdown and wait for processes!")
@@ -130,4 +127,4 @@ def process_dicom_set(input_dir):
 
 
 if __name__ == '__main__':
-    process_dicom_set(SAMPLE_IMGS)
+    process_dicom_set(config.SAMPLE_IMGS)
