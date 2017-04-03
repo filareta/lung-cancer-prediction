@@ -9,6 +9,7 @@ import scipy.ndimage as spi
 import lung_segmentation as ls
 
 import config
+from utils import store_patient_image
 
 
 NUM_PROCESSES = multiprocessing.cpu_count()
@@ -88,32 +89,6 @@ def resample(image, scan, new_spacing=[1, 1, 1]):
         mode='nearest')
     
     return image, new_spacing
-
-
-def store_patient_image(image_dir, image, patient_id):
-    """
-    Serializes the patient image.
-
-    Image is a 3D numpy array - array from patient slices.
-    If not existing image_dir is created.
-    """
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
-
-    np.savez_compressed(os.path.join(image_dir, patient_id), image)
-
-
-def load_patient_image(image_dir, patient_id):
-    """
-    Load the serialized patient image.
-
-    Image is a 3D array - array of patient slices, metadata,
-    contained in the dicom format, is removed.
-    """
-    if '.npz' not in patient_id:
-        patient_id += '.npz'
-    with np.load(os.path.join(image_dir, patient_id)) as data:
-        return data['arr_0']
 
 
 def process_patients_chunk(patients):

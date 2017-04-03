@@ -5,8 +5,6 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import compress_dicoms as cd
-import lung_segmentation as ls
 import config
 
 
@@ -59,6 +57,14 @@ def read_csv_column(input_file, columns=[0]):
     return pd.read_csv(input_file, usecols=columns).values.flatten()
 
 
+def store_to_csv(patients, labels, csv_file_path):
+    df = pd.DataFrame(data={config.ID_COLUMN_NAME: patients,
+                            config.COLUMN_NAME: labels}, 
+                      columns=[config.ID_COLUMN_NAME,
+                               config.COLUMN_NAME])
+    df.to_csv(csv_file_path)
+
+
 def trim_and_pad(patient_img, slice_count, normalize_pad=True):
     slices, size_x, size_y = patient_img.shape
 
@@ -76,27 +82,30 @@ def trim_and_pad(patient_img, slice_count, normalize_pad=True):
     return np.vstack([patient_img, padding])
 
 
-def get_average_shape(directory=config.SEGMENTED_LUNGS_DIR):
-    slice_counts = 0
-    img_size = 0
-    total = 0
-    max_slices = 0
-    for patient_id in os.listdir(directory):
-        image = cd.load_patient_image(directory, patient_id)
-        nodules = ls.get_lung_nodules_candidates(image)
-        slices, size, size = nodules.shape
-        if slices > max_slices:
-            max_slices = slices
-        slice_counts += slices
-        img_size += size
-        total += 1
+def store_patient_image(image_dir, image, patient_id):
+    """
+    Serializes the patient image.
 
-    # With resampling
-    # Max slices:  389
-    # Average shape:  (277, 338, 338)
+    Image is a 3D numpy array - array from patient slices.
+    If not existing image_dir is created.
+    """
+    if not os.path.exists(image_dir):
+        os.makedirs(image_dir)
 
-    # Only segmentation
-    # Max slices:  533
-    # Average shape:  (170, 512, 512)
-    print("Max slices: ", max_slices)
-    return (int(slice_counts/total), int(img_size/total), int(img_size/total))
+    np.savez_compressed(os.path.join(image_dir, patient_id), image)
+
+
+def load_patient_image(image_dir, patient_id):
+    """
+    Load the serialized patient image.
+
+    Image is a 3D array - array of patient slices, metadata,
+    contained in the dicom format, is removed.
+    """
+    if '.npz' not in patient_id:
+        patient_id += '.npz'
+    with np.load(os.path.join(image_dir, patient_id)) as data:
+        return data['arr_0']
+
+
+

@@ -9,6 +9,7 @@ VALIDATION_PATINETS_IDS = LABELS_INPUT_DIR + '/validation_data.csv'
 TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 
 COLUMN_NAME = 'cancer'
+ID_COLUMN_NAME = 'id'
 
 # [1, 0]-> no cancer
 # [0, 1] -> cancer

@@ -11,7 +11,6 @@ from scipy import ndimage as ndi
 import matplotlib.pyplot as plt
 import scipy.misc
 import numpy as np
-import compress_dicoms as cd
 
 
 threshold = -420
@@ -118,20 +117,3 @@ def apply_threshold(threshold, scan):
 def get_lung_nodules_candidates(patient_imgs):
     nodules = [apply_threshold(threshold, scan) for scan in patient_imgs]
     return np.stack([nodule for nodule in nodules if nodule.any()])
-
-
-if __name__ == '__main__':
-    cancer_id = '006b96310a37b36cccb2ab48d10b49a3'
-    no_cancer_id = '0a38e7597ca26f9374f8ea2770ba870d'
-    scans = cd.load_scans(cancer_id)
-    patient_imgs = cd.get_pixels_hu(scans)
-    # resampled_imgs, spacing = cd.resample(patient_imgs, scans)
-    # segmented = cd.load_patient_image(cd.COMPRESSED_DICOMS, no_cancer_id)
-    # segmented = cd.load_patient_image(cd.COMPRESSED_DICOMS, cancer_id)
-    segmented = [get_segmented_lungs(img) for img in patient_imgs]
-    nodules = get_lung_nodules_candidates(segmented)
-    dp.plot_3d(nodules, -300)
-    # print(nodules.shape)
-    # for nodule in nodules:
-    #     plt.imshow(nodule)
-    #     plt.show()
