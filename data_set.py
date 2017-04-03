@@ -2,28 +2,27 @@ import os
 import numpy as np
 import random as rnd
 
-import input_dicoms as ind
-import compress_dicoms as cd
 import patient_loader as pl
 import config
+from utils import read_csv_column, read_csv
 
 
 class DataLoader(object):
     def __init__(self, 
                 images_loader=None, 
-                labels_input=config.LABELS_INPUT_DIR,
-                exact_tests=config.EXACT_TEST_IDS,
-                train_set=config.TRAINING_IDS,
-                validation_set=config.VALIDATION_IDS):
+                labels_input=config.PATIENT_LABELS_CSV,
+                exact_tests=config.TEST_PATIENTS_IDS,
+                train_set=config.TRAINING_PATIENTS_IDS,
+                validation_set=config.VALIDATION_PATINETS_IDS):
         self._images_loader = images_loader or pl.NodulesScansLoader()
-        self._labels = ind.read_csv(labels_input)
+        self._labels = read_csv(labels_input)
 
         self._exact_tests = []
         if exact_tests:
-            self._exact_tests = ind.read_csv_column(exact_tests)
+            self._exact_tests = read_csv_column(exact_tests)
 
-        self._train_set = list(ind.read_csv_column(train_set, columns=[1]))
-        self._validation_set = list(ind.read_csv_column(validation_set, columns=[1]))
+        self._train_set = list(read_csv_column(train_set, columns=[1]))
+        self._validation_set = list(read_csv_column(validation_set, columns=[1]))
          
         self._double_positive_class_data()
         self._examples_count = len(self._validation_set) + len(self._train_set)
@@ -174,7 +173,7 @@ class DataSet(object):
         return self._data_loader.load_image(patient)
 
     def _validate_input_shape(self, patient_image):
-        return patient_image.shape == IMG_SHAPE
+        return patient_image.shape == config.IMG_SHAPE
 
     @property
     def num_samples(self):

@@ -1,6 +1,6 @@
 LABELS_INPUT_DIR = './input'
 ALL_IMGS = 'D:/Fil/stage1'
-SEGMENTED_LUNGS_DIR = '../segmented_morph_op'
+SEGMENTED_LUNGS_DIR = '../kaggle-data/segmented_morph_op'
 
 PATIENT_LABELS_CSV = LABELS_INPUT_DIR + '/stage1_labels.csv'
 TEST_PATIENTS_IDS = LABELS_INPUT_DIR + '/stage1_sample_submission.csv'
@@ -22,6 +22,6 @@ MIN_BOUND = -1000.0
 MAX_BOUND = 400.0
 IMAGE_PXL_SIZE_X = 512
 IMAGE_PXL_SIZE_Y = 512
-SLICES = 450
+SLICES = 200
 IMG_SHAPE = (SLICES, IMAGE_PXL_SIZE_X, 
 			 IMAGE_PXL_SIZE_Y, 1)
