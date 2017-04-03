@@ -9,8 +9,9 @@ from model_definition import x, y, keep_prob, learning_rate, batch_size
 from model_definition import tf_valid_dataset, tf_test_dataset
 from model_definition import weights, biases, dropout
 
-from model_utils import evaluate_log_loss, accuracy, store_error_plots
-from model import conv_net
+from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
+from model_utils import model_store_path, store_error_plots
+from model import conv_net, loss_function_with_logits
 
 
 training_iters = 101
@@ -36,8 +37,7 @@ for bias_key, bias_var in biases.items():
 pred = conv_net(x, weights, biases, dropout)
 
 # Define loss and optimizer
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y), 
-    name='cost-func')
+cost = loss_function_with_logits(pred, y)
 optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate).minimize(cost)
 
 
@@ -59,10 +59,11 @@ data_loader = ds.DataLoader()
 training_set = data_loader.get_training_set()
 validation_set = data_loader.get_validation_set()
 exact_tests = data_loader.get_exact_tests_set()
+model_out_dir = data_loader.results_out_dir()
 
-
-print('Validation examples count: ' + str(validation_set.num_samples))
-print('Test examples count: ' + str(exact_tests.num_samples))
+print('Validation examples count: ', validation_set.num_samples)
+print('Test examples count: ', exact_tests.num_samples)
+print('Model will be stored in: ', model_out_dir)
 
 
 # Initializing the variables
@@ -87,44 +88,40 @@ with tf.Session() as sess:
             batch_data, batch_labels = training_set.next_batch(batch_size)
 
             feed_dict = {x: np.stack(batch_data), y: batch_labels, keep_prob: dropout}
-            _, loss, predictions = sess.run([optimizer, cost, train_prediction], feed_dict=feed_dict)
+            _, loss, predictions = sess.run([optimizer, cost, train_prediction], 
+                                            feed_dict=feed_dict)
             train_errors.append(loss)
             train_pred.extend(predictions)
             train_labels.extend(batch_labels)
 
         if step % save_step == 0:
-            print("Store model snaphost!")
-            saver.save(sess, './nodules-cl' + str(step) + '.ckpt')
+            print("Storing model snaphost...")
+            saver.save(sess, model_store_path(model_out_dir, step))
 
         
-        print("============== Train Epoch {} finished!================".format(training_set.finished_epochs))
+        print("============== Train Epoch {} finished!================".format(
+            training_set.finished_epochs))
         train_acc_epoch = accuracy(np.stack(train_pred), np.stack(train_labels))
         mean_err = tf.reduce_mean(train_errors)
         mean_err_value = sess.run(mean_err)
-        print('===============Train accuracy %.1f%% on epoch: %d' % (train_acc_epoch, training_set.finished_epochs))
+        print('===============Train accuracy %.1f%% on epoch: %d' % (train_acc_epoch, 
+            training_set.finished_epochs))
         print('====== Reduced mean error {} ========='.format(mean_err_value))
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
-        print('<-=============== Train log loss error {} ==================->'.format(train_log_loss))
+        print('<-========== Train log loss error {} ============->'.format(train_log_loss))
 
         train_errors_per_epoch.append(train_log_loss)
 
         print("<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>")
-        validation_pred = []
-        validation_labels = []
-
-        index = 0
-        while index < validation_set.num_samples:
-            validation_batch, validation_label = validation_set.next_batch(batch_size)
-            batch_pred = sess.run(valid_prediction, feed_dict={tf_valid_dataset: np.stack(validation_batch)})
-           
-            validation_pred.extend(batch_pred)
-            validation_labels.extend(validation_label)
-            index += batch_size
+        validation_acc, validation_log_loss = evaluate_validation_set(sess, 
+                                                                      validation_set,
+                                                                      valid_prediction,
+                                                                      tf_valid_dataset,
+                                                                      batch_size)
         
-        validation_acc = accuracy(np.stack(validation_pred), np.stack(validation_labels))
         print('Validation accuracy: %.1f%%' % validation_acc)
-        validation_log_loss = evaluate_log_loss(validation_pred, validation_labels)
-        print("<<===================LOG LOSS overall validation samples: {}==================>>.".format(validation_log_loss))
+        print("<<==========  LOG LOSS overall validation samples: {} =========>>.".format(
+            validation_log_loss))
         
         if validation_log_loss < 0.1:
             print("Low enough log loss validation error, terminate!")
@@ -132,8 +129,8 @@ with tf.Session() as sess:
 
         validation_errors.append(validation_log_loss)
 
-    saver.save(sess, './nodules-cl.ckpt')
-    print("Model saved!!!")
+    saver.save(sess, model_store_path(model_out_dir, 'last'))
+    print("Model saved...")
     store_error_plots(validation_errors, train_errors_per_epoch)
 
 

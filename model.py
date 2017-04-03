@@ -74,3 +74,8 @@ def conv_net(x, weights, biases, dropout):
     out = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
     
     return out
+
+
+def loss_function_with_logits(logits, labels, tensor_name='cost_func'):
+	return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+		logits=logits, labels=labels), name=tensor_name)

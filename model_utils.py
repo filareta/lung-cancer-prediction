@@ -53,3 +53,34 @@ def calculate_conv_output_size(x, y, z, strides, filters, paddings):
     print("Final X: {}, Y: {}, Z: {}.".format(x, y, z))
 
     return (x, y, z)
+
+
+def model_store_path(store_dir, step):
+    return os.path.join(store_dir, 
+        'model_{}.ckpt'.format(step))
+
+
+def evaluate_validation_set(sess, 
+                            validation_set, 
+                            valid_prediction, 
+                            feed_data_key, 
+                            batch_size):
+    validation_pred = []
+    validation_labels = []
+
+    index = 0
+    while index < validation_set.num_samples:
+        validation_batch, validation_label = validation_set.next_batch(batch_size)
+        batch_pred = sess.run(valid_prediction, 
+            feed_dict={feed_data_key: np.stack(validation_batch)})
+       
+        validation_pred.extend(batch_pred)
+        validation_labels.extend(validation_label)
+        index += batch_size
+
+    validation_acc = accuracy(np.stack(validation_pred), 
+        np.stack(validation_labels))
+    validation_log_loss = evaluate_log_loss(validation_pred, 
+                                            validation_labels)
+
+    return (validation_acc, validation_log_loss)
