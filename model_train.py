@@ -127,7 +127,7 @@ with tf.Session() as sess:
         print("<<===================LOG LOSS overall validation samples: {}==================>>.".format(validation_log_loss))
         
         if validation_log_loss < 0.1:
-            print("Low enought log loss validation error, terminate!")
+            print("Low enough log loss validation error, terminate!")
             break;
 
         validation_errors.append(validation_log_loss)

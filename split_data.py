@@ -4,26 +4,15 @@ import random as rnd
 import pandas as pd
 
 import config
-from utils import read_csv_column, read_csv
-
-
-LABELS_INPUT_DIR = cd.INPUT_DIR + '/input/stage1_labels.csv'
-EXACT_TEST_IDS = cd.INPUT_DIR + '/input/stage1_sample_submission.csv'
-COLUMN_NAME = 'cancer'
-VALIDATION_IDS = cd.INPUT_DIR + '/input/validation_data.csv'
-TRAINING_IDS = cd.INPUT_DIR + '/input/training_data.csv'
-ALL_IMGS = 'D:/Fil/stage1'
-
-CANCER_CLS = 1
-NO_CANCER_CLS = 0
+from utils import read_csv_column, read_csv, store_to_csv
 
 
 def load_labels():
-    return ind.read_csv(config.PATIENT_LABELS_CSV)
+    return read_csv(config.PATIENT_LABELS_CSV)
 
 
 def load_test_ids():
-    return ind.read_csv_column(config.TEST_PATIENTS_IDS)
+    return read_csv_column(config.TEST_PATIENTS_IDS)
 
 
 def get_patient_name(patient_file):
@@ -59,7 +48,8 @@ def split_data():
     validation_size = int(0.15 * total)
 
     validation_set = rnd.sample(patient_ids, validation_size)
-    train_set = [patient for patient in patient_ids if patient not in validation_set]
+    train_set = [patient for patient in patient_ids 
+                 if patient not in validation_set]
 
     print("Patients for training: ", len(train_set))
     print("Patients for validation: ", len(validation_set))
