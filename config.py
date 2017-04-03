@@ -8,6 +8,8 @@ TEST_PATIENTS_IDS = LABELS_INPUT_DIR + '/stage1_sample_submission.csv'
 VALIDATION_PATINETS_IDS = LABELS_INPUT_DIR + '/validation_data.csv'
 TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 
+MODELS_STORE_DIR = './models'
+
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'
 

@@ -8,7 +8,7 @@ import lung_segmentation as ls
 
 class PatientImageLoader(object):
     def __init__(self, images_dir):
-        self._images_input = images_dir
+        self._images_input = images_dir or config.SEGMENTED_LUNGS_DIR
 
     def load_scans(self, patient):
         pass
@@ -17,14 +17,24 @@ class PatientImageLoader(object):
     def images_input(self):
         return self._images_input
 
+    @property
+    def name(self):
+        return 'base_image_loader'
 
+
+# Tests with the mean scans loader were done without
+# lung segmentation, only compressed sorted slices in HU units.
 class MeanScansLoader(PatientImageLoader):
-    def __init__(self, images_dir=config.SEGMENTED_LUNGS_DIR):
+    def __init__(self, images_dir):
         super(MeanScansLoader, self).__init__(images_dir)
 
     def load_scans(self, patient):
         image = utils.load_patient_image(self._images_input, patient)
         return utils.get_mean_chunk_slices(image)
+
+    @property
+    def name(self):
+        return 'mean_scans_loader'
         
 
 class TrimPadScansLoader(PatientImageLoader):
@@ -36,6 +46,10 @@ class TrimPadScansLoader(PatientImageLoader):
         image = utils.trim_and_pad(image, config.SLICES, False)
         
         return utils.resize(image)
+
+    @property
+    def name(self):
+        return 'trim_pad_scans_loader'
 
 
 class NodulesScansLoader(PatientImageLoader):
@@ -72,6 +86,10 @@ class NodulesScansLoader(PatientImageLoader):
 
     def load_scans(self, patient):
         return self.process_scans(patient)
+
+    @property
+    def name(self):
+        return 'nodules_scans_loader'
 
 
 if __name__ == '__main__':

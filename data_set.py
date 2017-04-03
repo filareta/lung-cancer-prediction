@@ -24,7 +24,6 @@ class DataLoader(object):
         self._train_set = list(read_csv_column(train_set, columns=[1]))
         self._validation_set = list(read_csv_column(validation_set, columns=[1]))
          
-        self._double_positive_class_data()
         self._examples_count = len(self._validation_set) + len(self._train_set)
         print("=============Total examples used for training and validation: ", self._examples_count)
         
@@ -94,6 +93,14 @@ class DataLoader(object):
     def load_image(self, patient):
         scans = self._images_loader.load_scans(patient)
         return scans.reshape(*config.IMG_SHAPE)
+
+    def results_out_dir(self):
+        out_dir = os.path.join(config.MODELS_STORE_DIR,
+            self._images_loader.name())
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        return out_dir
 
 
 class DataSet(object):
