@@ -1,15 +1,13 @@
+import os
+import dicom
 import multiprocessing
 import concurrent.futures
+
 import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-import glob
-import dicom
-import pylab
 import scipy.ndimage as spi
 import lung_segmentation as ls
+
 import config
 
 
@@ -54,7 +52,7 @@ def get_pixels_hu(slices):
 
     # Set outside-of-scan pixels to 0
     # The intercept is usually -1024, so air is approximately 0
-    image[image == -2000] = 0
+    image[image == config.OUT_SCAN] = 0
     
     # Convert to Hounsfield units (HU)
     for slice_number in range(len(slices)):
