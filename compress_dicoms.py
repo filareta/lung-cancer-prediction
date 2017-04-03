@@ -17,11 +17,21 @@ NUM_PROCESSES = multiprocessing.cpu_count()
 
 
 def load_scans(patient):
-    patient_dir = os.path.join(config.SAMPLE_IMGS, patient)
+    """
+    Loads the orginal scans in dicom format for a patient.
+
+    Loaded files are located under a directory, configurable
+    using config.ALL_IMGS variable. Scans are sorted by 
+    slice location, which is actually Z coordinate of 
+    the scan.
+    """
+    patient_dir = os.path.join(config.ALL_IMGS, patient)
     slices = [dicom.read_file(os.path.join(patient_dir, scan)) for scan in os.listdir(patient_dir)]
 
     # ImagePositionPatient[2] equals the slice location == Z coordinate of the scan
     slices.sort(key = lambda x: float(x.ImagePositionPatient[2]))
+    # Slice thickness is missing, but is currently used only in resampling,
+    # which is skipped, must be checked
     try:
         slice_thickness = np.abs(slices[0].ImagePositionPatient[2] - slices[1].ImagePositionPatient[2])
     except:
@@ -34,6 +44,9 @@ def load_scans(patient):
 
 
 def get_pixels_hu(slices):
+    """
+    Converts pixels from the pixel_array into Houndsfield Units.
+    """
     image = np.stack([s.pixel_array for s in slices])
     # Convert to int16 (from sometimes int16), 
     # should be possible as values should always be low enough (<32k)
@@ -58,10 +71,14 @@ def get_pixels_hu(slices):
     return np.array(image, dtype=np.int16)
 
 
-# Resampling to an isomorphic resolution in order to remove variance in the scans
 def resample(image, scan, new_spacing=[1, 1, 1]):
+    """
+    Resampling to an isomorphic resolution in order to remove 
+    variance in the scans.
+    """
     # Determine current pixel spacing
-    spacing = np.array([scan[0].SliceThickness] + scan[0].PixelSpacing, dtype=np.float32)
+    spacing = np.array([scan[0].SliceThickness] + scan[0].PixelSpacing, 
+        dtype=np.float32)
 
     resize_factor = spacing / new_spacing
     new_real_shape = image.shape * resize_factor
@@ -69,12 +86,19 @@ def resample(image, scan, new_spacing=[1, 1, 1]):
     real_resize_factor = new_shape / image.shape
     new_spacing = spacing / real_resize_factor
     
-    image = spi.interpolation.zoom(image, real_resize_factor, mode='nearest')
+    image = spi.interpolation.zoom(image, real_resize_factor, 
+        mode='nearest')
     
     return image, new_spacing
 
 
 def store_patient_image(image_dir, image, patient_id):
+    """
+    Serializes the patient image.
+
+    Image is a 3D numpy array - array from patient slices.
+    If not existing image_dir is created.
+    """
     if not os.path.exists(image_dir):
         os.makedirs(image_dir)
 
@@ -82,6 +106,12 @@ def store_patient_image(image_dir, image, patient_id):
 
 
 def load_patient_image(image_dir, patient_id):
+    """
+    Load the serialized patient image.
+
+    Image is a 3D array - array of patient slices, metadata,
+    contained in the dicom format, is removed.
+    """
     if '.npz' not in patient_id:
         patient_id += '.npz'
     with np.load(os.path.join(image_dir, patient_id)) as data:
@@ -89,6 +119,12 @@ def load_patient_image(image_dir, patient_id):
 
 
 def process_patients_chunk(patients):
+    """
+    Executes initial preprocessing operations on a list of patients.
+    
+    Before serializing and compressing scans are sorted by slice
+    location, converted to HU units and lung is segmented.
+    """
     for patient in patients:
         try:
             scans = load_scans(patient)
@@ -97,7 +133,7 @@ def process_patients_chunk(patients):
             segmented_lungs = np.stack([ls.get_segmented_lungs(image)
                                         for image in patient_imgs])
             
-            store_patient_image(config.COMPRESSED_DICOMS, segmented_lungs, patient)
+            store_patient_image(config.SEGMENTED_LUNGS_DIR, segmented_lungs, patient)
             print("====== Store patient {} image ======.".format(patient))
         except Exception as e:
             print("An error occured while processing {}! {}".format(patient, e))
@@ -105,6 +141,12 @@ def process_patients_chunk(patients):
 
 
 def process_dicom_set(input_dir):
+    """
+    Executes initial processing on the dicom images under the given directory.
+
+    Patients are split into chunks and processed in separate threads
+    to speed up execution.
+    """
     patients = np.array([patient for patient in os.listdir(input_dir)])
     chunked_data = np.array_split(patients, NUM_PROCESSES)
     print("Number of processes: {}, total chunks of data {}!".format(NUM_PROCESSES, len(chunked_data)))
@@ -127,4 +169,4 @@ def process_dicom_set(input_dir):
 
 
 if __name__ == '__main__':
-    process_dicom_set(config.SAMPLE_IMGS)
+    process_dicom_set(config.ALL_IMGS)
