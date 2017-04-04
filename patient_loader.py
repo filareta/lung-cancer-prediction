@@ -59,16 +59,43 @@ class NodulesScansLoader(PatientImageLoader):
     def process_scans(self, patient):
         image = utils.load_patient_image(self._images_input, patient)
         nodules = ls.get_lung_nodules_candidates(image)
+        nodules = utils.resize(nodules)
         
         # TODO: Could be improved
         return utils.trim_pad_slices(nodules)
 
     def load_scans(self, patient):
-        return utils.resize(self.process_scans(patient))
+        return self.process_scans(patient)
 
     @property
     def name(self):
         return 'nodules_scans_loader'
+
+
+class CroppedLungScansLoader(PatientImageLoader):
+    def __init__(self, images_dir=config.SEGMENTED_LUNGS_DIR):
+        super(CroppedLungScansLoader, self).__init__(images_dir)
+
+    def process_scans(self, patient):
+        image = np.array([])
+        try:
+            image = utils.load_patient_image(self._images_input, patient)
+        except Exception as e:
+            print("Could not load image {}".format(e))
+            return image
+
+        image = utils.remove_background_rows(image)
+        nodules = ls.get_lung_nodules_candidates(image)
+        nodules = utils.resize(nodules)
+        
+        return utils.trim_pad_slices(nodules)
+    
+    def load_scans(self, patient):
+        return self.process_scans(patient)
+
+    @property
+    def name(self):
+        return 'cropped_nodules_scans_loader'
 
 
 if __name__ == '__main__':

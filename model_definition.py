@@ -42,15 +42,14 @@ n_z = config.SLICES
 num_channels = 1
 n_input = n_x * n_y * n_z
 n_classes = 2
-dropout = 0.8 # Dropout, probability to keep units
+dropout = 0.6 # Dropout, probability to keep units
 
 image_tensor_shape = [-1, n_z, n_x, n_y, num_channels]
 
 # tf Graph input
 x = tf.placeholder(tf.float32, shape=(batch_size, n_z, n_x, n_y, num_channels), 
     name='train_input')
-y = tf.placeholder(tf.float32, shape=(batch_size, n_classes), 
-    name='label')
+y = tf.placeholder(tf.int32, shape=(batch_size,), name='label')
 keep_prob = tf.placeholder(tf.float32, name='dropout') #dropout (keep probability)
 
 tf_valid_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 

@@ -8,11 +8,13 @@ import matplotlib.pyplot as plt
 import config
 
 
-def resize(image):
+def resize(image, 
+           x=config.IMAGE_PXL_SIZE_X,
+           y=config.IMAGE_PXL_SIZE_Y):
     if not len(image):
         return np.array([])
 
-    return np.stack([cv2.resize(scan, (config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y)) 
+    return np.stack([cv2.resize(scan, (x, y)) 
                      for scan in image])
 
 
@@ -82,7 +84,8 @@ def trim_and_pad(patient_img, slice_count, normalize_pad=True):
     return np.vstack([patient_img, padding])
 
 
-def trim_pad_slices(scans, pad_with_existing=True, padding_value=0):
+def trim_pad_slices(scans, pad_with_existing=True,
+                    padding_value=config.BACKGROUND):
     slices, x, y = scans.shape
 
     if slices == config.SLICES:
@@ -108,6 +111,10 @@ def trim_pad_slices(scans, pad_with_existing=True, padding_value=0):
         trimmed.append(slice_chunk[1:])
 
     return np.vstack(trimmed)
+
+
+def remove_background_rows(image, background=config.BACKGROUND):
+    return image[~np.all(image == background, axis=1)] 
 
 
 def store_patient_image(image_dir, image, patient_id):

@@ -9,39 +9,42 @@ from utils import read_csv_column, read_csv
 
 class DataLoader(object):
     def __init__(self, 
-                images_loader=None, 
-                labels_input=config.PATIENT_LABELS_CSV,
-                exact_tests=config.TEST_PATIENTS_IDS,
-                train_set=config.TRAINING_PATIENTS_IDS,
-                validation_set=config.VALIDATION_PATINETS_IDS):
-        self._images_loader = images_loader or pl.NodulesScansLoader()
+                 images_loader=None, 
+                 labels_input=config.PATIENT_LABELS_CSV,
+                 exact_tests=config.TEST_PATIENTS_IDS,
+                 train_set=config.TRAINING_PATIENTS_IDS,
+                 validation_set=config.VALIDATION_PATINETS_IDS):
+        self._images_loader = images_loader or pl.CroppedLungScansLoader()
         self._labels = read_csv(labels_input)
 
         self._exact_tests = []
         if exact_tests:
             self._exact_tests = read_csv_column(exact_tests)
 
-        self._train_set = list(read_csv_column(train_set, columns=[1]))
-        self._validation_set = list(read_csv_column(validation_set, columns=[1]))
-         
+        self._train_set = list(read_csv_column(train_set, 
+                                               columns=[1]))
+        self._validation_set = list(read_csv_column(
+            validation_set, columns=[1]))
+
         self._examples_count = len(self._validation_set) + len(self._train_set)
-        print("=============Total examples used for training and validation: ", self._examples_count)
+        print("Total examples used for training and validation: ",
+            self._examples_count)
         
-        print("<<<<<<<<<< Total patients used for validation: ", len(self._validation_set))
-        print("<<<<<<<<<< Total patients used for training: ", len(self._train_set))
+        print("Total patients used for validation: ", 
+            len(self._validation_set))
+        print("Total patients used for training: ", 
+            len(self._train_set))
         self._exact_tests_count = len(self._exact_tests)
 
     def _double_positive_class_data(self):
-        positive = self.patients_from_class(self._train_set, config.CANCER_CLS)
+        positive = self.patients_from_class(self._train_set, 
+                                            config.CANCER_CLS)
         print("Patients with cancer are: {}".format(len(positive)))
         self._train_set.extend(positive)
 
     def patients_from_class(self, patient_ids, clazz):
         return [patient for patient in patient_ids 
-                if np.argmax(self.get_label(patient)) == clazz]
-        
-    def extract_labels(self, patient_ids):
-        return [self.get_label(patient_id) for patient_id in patient_ids]
+                if self.get_label(patient) == clazz]
 
     @property
     def exact_tests_count(self):
@@ -58,18 +61,16 @@ class DataLoader(object):
         return len(self._validation_set)
 
     def get_label(self, patient_id):
-        result = np.array([0, 0], dtype=np.float32)
         try:
             #[first class=no cancer=0, second class=cancer=1]
             # [1, 0]-> no cancer
             # [0, 1] -> cancer
             clazz = self._labels.get_value(patient_id, config.COLUMN_NAME)
-            result[clazz] = 1.0
-            return result
+            return clazz
         except KeyError as e:
             print("No key found for patient with id {} in the labels.".format(
                    patient_id))
-        return []
+        return None
 
     def has_label(self, patient):
         try:
@@ -92,7 +93,9 @@ class DataLoader(object):
 
     def load_image(self, patient):
         scans = self._images_loader.load_scans(patient)
-        return scans.reshape(*config.IMG_SHAPE)
+        if len(scans):
+            return scans.reshape(*config.IMG_SHAPE)
+        return scans
 
     def results_out_dir(self):
         out_dir = os.path.join(config.MODELS_STORE_DIR,
@@ -133,7 +136,7 @@ class DataSet(object):
             patient = self._data_set[start]
             image, label = self._patient_with_label(patient)
           
-            if len(image) and len(label):
+            if len(image) and label is not None:
                 labels.append(label)
                 data_set.append(image)
             else:
@@ -142,30 +145,21 @@ class DataSet(object):
 
         self._index_in_epoch = end
         if len(data_set) < batch_size:
-            print("!!!Current batch size is less -> {}".format(len(data_set)))
-        return data_set, labels
-
-    def get_set(self):
-        data_set = []
-        labels = []
-        rnd.shuffle(self._data_set)
-
-        for patient in self._data_set:
-            image, label = self._patient_with_label(patient)
-            if len(image) and len(label):
-                labels.append(label)
-                data_set.append(image)
-
+            print("Current batch size is less: {}".format(len(data_set)))
+            print("Start {}, end {}, samples {}".format(start, end, 
+                self._num_samples))
         return data_set, labels
 
     def _patient_with_label(self, patient_id):
         label = self._data_loader.get_label(patient_id)
-        if len(label):
-            image = self._load_patient(patient_id)
-            if self._validate_input_shape(image):
-                return (image, label)
-
-        return ([], [])
+        if label is None:
+            return ([], None)
+        
+        image = self._load_patient(patient_id)
+        if self._validate_input_shape(image):
+            return (image, label)
+        
+        return ([], None)
 
     # Used during exact testing phase, here no labels are returned
     def yield_input(self):

@@ -11,7 +11,7 @@ from model_definition import weights, biases, dropout, image_tensor_shape
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
-from model import conv_net, loss_function_with_logits
+from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 
 training_iters = 101
@@ -39,7 +39,7 @@ for bias_key, bias_var in biases.items():
 pred = conv_net(x, weights, biases, dropout)
 
 # Define loss and optimizer
-cost = loss_function_with_logits(pred, y)
+cost = sparse_loss_with_logits(pred, y)
 optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate).minimize(cost)
 
 
