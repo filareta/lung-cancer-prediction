@@ -16,17 +16,17 @@ hidden = 100
 second_hidden = 50
 
 # Convolution filter size on first layer
-first_kernel_size_x = 7
-first_kernel_size_z = 5
+first_kernel_size_x = 5
 first_kernel_size_y = 5
+first_kernel_size_z = 3
 
 # Max pooling window size and stride on first layer
 first_pool_stride_x = 4
 first_pool_window_x = 5
+first_pool_stride_y = 4
+first_pool_window_y = 5
 first_pool_stride_z = 2
 first_pool_window_z = 3
-first_pool_stride_y = 2
-first_pool_window_y = 3
 
 # Convolution filter size for the rest of the layers
 kernel_size = 3
