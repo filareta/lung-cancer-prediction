@@ -77,5 +77,12 @@ def conv_net(x, weights, biases, dropout):
 
 
 def loss_function_with_logits(logits, labels, tensor_name='cost_func'):
-	return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
-		logits=logits, labels=labels), name=tensor_name)
+    return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+        logits=logits, labels=labels), name=tensor_name)
+
+
+# Sparse sofmtax is used for mutually exclusive classes,
+# labels rank must be logits rank - 1
+def sparse_loss_with_logits(logits, labels, tensor_name='cost_func'):
+    return tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
+        logits=logits, labels=labels), name=tensor_name)
