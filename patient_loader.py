@@ -61,28 +61,7 @@ class NodulesScansLoader(PatientImageLoader):
         nodules = ls.get_lung_nodules_candidates(image)
         
         # TODO: Could be improved
-        slices, x, y = nodules.shape
-
-        if slices == config.SLICES:
-            return nodules
-
-        if slices < config.SLICES:
-            pad = config.SLICES - slices
-
-            padding = []
-            for slice_chunk in np.array_split(nodules, pad):
-                # TODO: Think of an improvement, not well sorted 
-                # by the slice location
-                padding.append(slice_chunk[-1])
-
-            return np.vstack([nodules, padding])
-
-        trim = slices - config.SLICES
-        trimmed = []
-        for slice_chunk in np.array_split(nodules, trim):
-            trimmed.append(slice_chunk[1:])
-
-        return np.vstack(trimmed)
+        return utils.trim_pad_slices(nodules)
 
     def load_scans(self, patient):
         return utils.resize(self.process_scans(patient))

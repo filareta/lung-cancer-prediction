@@ -82,6 +82,34 @@ def trim_and_pad(patient_img, slice_count, normalize_pad=True):
     return np.vstack([patient_img, padding])
 
 
+def trim_pad_slices(scans, pad_with_existing=True, padding_value=0):
+    slices, x, y = scans.shape
+
+    if slices == config.SLICES:
+        return scans
+
+    if slices < config.SLICES:
+        pad = config.SLICES - slices
+
+        if pad_with_existing:
+            padding = []
+            for slice_chunk in np.array_split(scans, pad):
+                # TODO: Think of an improvement, not well sorted 
+                # by the slice location
+                padding.append(slice_chunk[-1])
+        else:
+            padding = np.full((pad, x, y), padding_value, scans.dtype)
+
+        return np.vstack([scans, padding])
+
+    trim = slices - config.SLICES
+    trimmed = []
+    for slice_chunk in np.array_split(scans, trim):
+        trimmed.append(slice_chunk[1:])
+
+    return np.vstack(trimmed)
+
+
 def store_patient_image(image_dir, image, patient_id):
     """
     Serializes the patient image.
