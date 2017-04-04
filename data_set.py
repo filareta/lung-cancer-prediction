@@ -96,7 +96,7 @@ class DataLoader(object):
 
     def results_out_dir(self):
         out_dir = os.path.join(config.MODELS_STORE_DIR,
-            self._images_loader.name())
+            self._images_loader.name)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
