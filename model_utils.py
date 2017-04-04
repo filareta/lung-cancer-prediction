@@ -1,6 +1,11 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import log_loss
+import tensorflow as tf
+
+import config
+from utils import store_to_csv
 
 
 def store_error_plots(validation_err, train_err):
@@ -25,7 +30,7 @@ def high_error_increase(errors, current,
 
 
 def accuracy(predictions, labels):
-    return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1)) 
+    return (100 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1)) 
         / predictions.shape[0])
 
 
@@ -84,3 +89,48 @@ def evaluate_validation_set(sess,
                                             validation_labels)
 
     return (validation_acc, validation_log_loss)
+
+
+def evaluate_test_set(sess, 
+                      test_set,
+                      test_img_shape,
+                      test_prediction,
+                      feed_data_key,
+                      export_csv=True):
+    i = 0
+    gen = test_set.yield_input()
+    patients, probs = [], []
+
+    try:
+        while i < test_set.num_samples:
+            patient, test_img = gen.__next__()
+            test_img_reshape = tf.reshape(test_img, 
+                shape=test_img_shape)
+            test_img = sess.run(test_img_reshape)
+            i += 1
+            # returns index of column with highest probability
+            # [first class=no cancer=0, second class=cancer=1]
+            if len(test_img):
+                output = sess.run(test_prediction, 
+                    feed_dict={feed_data_key: test_img})
+                max_ind_f = tf.argmax(output, 1)
+                ind_value = sess.run(max_ind_f)
+                patients.append(patient)
+                max_prob = output[0][ind_value][0]
+                if ind_value[0] == config.NO_CANCER_CLS:
+                    max_prob = 1.0 - max_prob
+                probs.append(max_prob)
+
+                print("Output {} for patient with id {}, predicted output {}.".format(
+                    max_prob, patient, output[0]))
+
+            else:
+                print("Corrupted test image, incorrect shape for patient {}".format(
+                    patient))
+    except Exception as e:
+        print("Storing results failed with: {}".format(e))
+
+    if export_csv:
+        store_to_csv(patients, probs, config.SOLUTION_FILE_PATH)
+
+

@@ -43,6 +43,7 @@ dropout = 0.8 # Dropout, probability to keep units
 validaton_logg_loss_incr_threshold = 0.1
 last_errors = 3
 
+image_tensor_shape = [-1, n_z, n_x, n_y, num_channels]
 
 # tf Graph input
 x = tf.placeholder(tf.float32, shape=(batch_size, n_z, n_x, n_y, num_channels), name='train_input')

@@ -7,10 +7,10 @@ import config
 
 from model_definition import x, y, keep_prob, learning_rate, batch_size
 from model_definition import tf_valid_dataset, tf_test_dataset
-from model_definition import weights, biases, dropout
+from model_definition import weights, biases, dropout, image_tensor_shape
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
-from model_utils import model_store_path, store_error_plots
+from model_utils import model_store_path, store_error_plots, evaluate_test_set
 from model import conv_net, loss_function_with_logits
 
 
@@ -104,11 +104,11 @@ with tf.Session() as sess:
         train_acc_epoch = accuracy(np.stack(train_pred), np.stack(train_labels))
         mean_err = tf.reduce_mean(train_errors)
         mean_err_value = sess.run(mean_err)
-        print('===============Train accuracy %.1f%% on epoch: %d' % (train_acc_epoch, 
-            training_set.finished_epochs))
+        print('===============Train accuracy %.1f%% on epoch: %d' % (
+            train_acc_epoch, training_set.finished_epochs))
         print('====== Reduced mean error {} ========='.format(mean_err_value))
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
-        print('<-========== Train log loss error {} ============->'.format(train_log_loss))
+        print('<-===== Train log loss error {} ======->'.format(train_log_loss))
 
         train_errors_per_epoch.append(train_log_loss)
 
@@ -120,7 +120,7 @@ with tf.Session() as sess:
                                                                       batch_size)
         
         print('Validation accuracy: %.1f%%' % validation_acc)
-        print("<<==========  LOG LOSS overall validation samples: {} =========>>.".format(
+        print("<<=== LOG LOSS overall validation samples: {} ===>>.".format(
             validation_log_loss))
         
         if validation_log_loss < 0.1:
@@ -134,39 +134,10 @@ with tf.Session() as sess:
     store_error_plots(validation_errors, train_errors_per_epoch)
 
 
-    # #============= REAL EVALUATION =====================
-    # Rework
-    i = 0
-    gen = exact_tests.yield_input()
-    patients, outputs, probs = [], [], []
-    try:
-        while i < data_loader.exact_tests_count:
-            patient, test_img = gen.__next__()
-            test_img_reshape = tf.reshape(test_img, shape=[-1, n_z, n_x, n_y, num_channels])
-            test_img = sess.run(test_img_reshape)
-            i += 1
-            # returns index of column with highest probability
-            # [first class=no cancer=0, second class=cancer=1]
-            if len(test_img):
-                output = sess.run(test_prediction, feed_dict={tf_test_dataset: test_img})
-                max_ind_f = tf.argmax(output, 1)
-                ind_value = sess.run(max_ind_f)
-                outputs.append(ind_value[0])
-                patients.append(patient)
-                max_prob = output[0][ind_value][0]
-                if ind_value[0] == ds.NO_CANCER_CLS:
-                    max_prob = 1.0 - max_prob
-                probs.append(max_prob)
+    # ============= REAL TEST DATA EVALUATION =====================
 
-                print("Output {} for patient with id {}, max is {}.".format(max_prob, 
-                                                                            patient,
-                                                                            ind_value[0]))
-
-            else:
-                print("Corrupted test image, incorrect shape for patient {}".format(patient))
-    except Exception as e:
-        print("Storing results failed with: {}".format(e))
-
-    df = pd.DataFrame(data={'id': patients, 'cancer': probs}, columns=['id', 'cancer'], index=None)
-    df.to_csv('./sample_solution.csv')
-
+    evaluate_test_set(sess, 
+                      exact_tests, 
+                      image_tensor_shape,
+                      test_prediction,
+                      tf_test_dataset)

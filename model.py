@@ -21,7 +21,7 @@ def maxpool3d(x, k=[1, md.pool_window, md.pool_window, md.pool_window, 1],
 # Create model
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
-    x = tf.reshape(x, shape=[-1, md.n_z, md.n_x, md.n_y, md.num_channels])
+    x = tf.reshape(x, shape=md.image_tensor_shape)
 
     # Convolution Layer
     conv1 = conv3d(x, weights['wc1'], biases['bc1'], padding='VALID')

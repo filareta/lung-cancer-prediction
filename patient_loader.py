@@ -85,7 +85,7 @@ class NodulesScansLoader(PatientImageLoader):
         return np.vstack(trimmed)
 
     def load_scans(self, patient):
-        return self.process_scans(patient)
+        return utils.resize(self.process_scans(patient))
 
     @property
     def name(self):
