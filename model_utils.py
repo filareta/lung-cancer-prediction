@@ -20,8 +20,10 @@ def store_error_plots(validation_err, train_err):
 
 
 # TODO: Think of a better evaluation strategy
-def high_error_increase(errors, current, 
-    least_count=3, incr_threshold=0.1):
+def high_error_increase(errors, 
+                        current, 
+                        least_count=3, 
+                        incr_threshold=0.1):
     if len(errors) < least_count:
         return False
 

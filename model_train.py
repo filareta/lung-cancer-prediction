@@ -16,6 +16,8 @@ from model import conv_net, loss_function_with_logits
 
 training_iters = 101
 save_step = 5
+validaton_logg_loss_incr_threshold = 0.1
+last_errors = 3
 
 
 # Add tensors to collection stored in the model graph
@@ -127,6 +129,16 @@ with tf.Session() as sess:
             print("Low enough log loss validation error, terminate!")
             break;
 
+        if high_error_increase(validation_errors[-last_errors:], 
+                               validation_log_loss,
+                               last_errors,
+                               validaton_logg_loss_incr_threshold):
+            print("Validation log loss has increased more than the allowed threshold",
+                  " for the past iterations, terminate!")
+            print("Last iterations: ", validation_errors[-last_errors:])
+            print("Current validation error: ", validation_log_loss)
+            break;
+
         validation_errors.append(validation_log_loss)
 
     saver.save(sess, model_store_path(model_out_dir, 'last'))
@@ -135,7 +147,6 @@ with tf.Session() as sess:
 
 
     # ============= REAL TEST DATA EVALUATION =====================
-
     evaluate_test_set(sess, 
                       exact_tests, 
                       image_tensor_shape,
