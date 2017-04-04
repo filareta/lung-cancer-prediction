@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 import utils
 import config
@@ -60,8 +61,7 @@ class NodulesScansLoader(PatientImageLoader):
         image = utils.load_patient_image(self._images_input, patient)
         nodules = ls.get_lung_nodules_candidates(image)
         nodules = utils.resize(nodules)
-        
-        # TODO: Could be improved
+
         return utils.trim_pad_slices(nodules)
 
     def load_scans(self, patient):
@@ -84,10 +84,10 @@ class CroppedLungScansLoader(PatientImageLoader):
             print("Could not load image {}".format(e))
             return image
 
-        image = utils.remove_background_rows(image)
         nodules = ls.get_lung_nodules_candidates(image)
-        nodules = utils.resize(nodules)
-        
+        # Involves resizing currently, removing background must be improved
+        nodules = utils.remove_background_rows_3d(nodules)
+
         return utils.trim_pad_slices(nodules)
     
     def load_scans(self, patient):
@@ -99,9 +99,11 @@ class CroppedLungScansLoader(PatientImageLoader):
 
 
 if __name__ == '__main__':
+    # loader = CroppedLungScansLoader()
     loader = NodulesScansLoader()
     for patient in os.listdir(config.SEGMENTED_LUNGS_DIR):
-    # patient = '008464bb8521d09a42985dd8add3d0d2'
         lungs = loader.process_scans(patient)
+        plt.imshow(lungs[80], cmap='gray')
+        plt.show()
 
 

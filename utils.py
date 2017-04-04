@@ -114,7 +114,18 @@ def trim_pad_slices(scans, pad_with_existing=True,
 
 
 def remove_background_rows(image, background=config.BACKGROUND):
-    return image[~np.all(image == background, axis=1)] 
+    return image[~np.all(image == background, axis=1)]
+
+
+def remove_background_rows_3d(scans, background=config.BACKGROUND):
+    transformed = []
+    for scan in scans:
+        removed = remove_background_rows(scan, background)
+        tr_scan = cv2.resize(removed, 
+            (config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y))
+        transformed.append(tr_scan)
+
+    return np.stack(transformed)
 
 
 def store_patient_image(image_dir, image, patient_id):
