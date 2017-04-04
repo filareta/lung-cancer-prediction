@@ -134,6 +134,3 @@ def load_patient_image(image_dir, patient_id):
         patient_id += '.npz'
     with np.load(os.path.join(image_dir, patient_id)) as data:
         return data['arr_0']
-
-
-

@@ -1,4 +1,5 @@
 import tensorflow as tf
+from functools import reduce
 
 from model_definition import image_tensor_shape
 from model_definition import pool_windows, pool_strides
@@ -51,13 +52,14 @@ def conv_net(x, weights, biases, dropout):
                       padding='VALID')
     
     conv_shape = conv4.get_shape().as_list()
+    fully_con_input_size = reduce(lambda x, y: x * y, conv_shape[1:])
     print("SHAPE of the last convolution layer after max pooling: {}, new shape {}".format(
-        conv_shape, conv_shape[1]*conv_shape[2]*conv_shape[3]*conv_shape[4]))
+        conv_shape, fully_con_input_size))
 
     # Fully connected layer
     # Reshape conv output to fit fully connected layer input
     number = conv_shape[0] or -1
-    fc1 = tf.reshape(conv4, [number, conv_shape[1]*conv_shape[2]*conv_shape[3]*conv_shape[4]])
+    fc1 = tf.reshape(conv4, [number, fully_con_input_size])
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
 
