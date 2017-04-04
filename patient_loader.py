@@ -102,8 +102,8 @@ class CroppedLungScansLoader(PatientImageLoader):
 
 
 if __name__ == '__main__':
-    # loader = CroppedLungScansLoader()
-    loader = NodulesScansLoader()
+    loader = CroppedLungScansLoader()
+    # loader = NodulesScansLoader()
     for patient in os.listdir(config.SEGMENTED_LUNGS_DIR):
         lungs = loader.process_scans(patient)
         plt.imshow(lungs[80], cmap='gray')
