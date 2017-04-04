@@ -32,14 +32,12 @@ def high_error_increase(errors,
 
 
 def accuracy(predictions, labels):
-    return (100 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1)) 
+    return (100 * np.sum(np.argmax(predictions, 1) == labels) 
         / predictions.shape[0])
 
 
 def evaluate_log_loss(predictions, labels):
-    true_labels = np.argmax(labels, 1)
-
-    return log_loss(true_labels, predictions, labels=[0, 1])
+    return log_loss(labels, predictions, labels=[0, 1])
 
 
 def calculate_conv_output_size(x, y, z, strides, filters, paddings):
