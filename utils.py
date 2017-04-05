@@ -113,6 +113,10 @@ def trim_pad_slices(scans, pad_with_existing=True,
     return np.vstack(trimmed)
 
 
+def count_background_rows(image, background=config.BACKGROUND):
+    return np.sum(np.all(image == background, axis=1))
+
+
 def remove_background_rows(image, background=config.BACKGROUND):
     return image[~np.all(image == background, axis=1)]
 
