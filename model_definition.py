@@ -42,7 +42,7 @@ n_z = config.SLICES
 num_channels = 1
 n_input = n_x * n_y * n_z
 n_classes = 2
-dropout = 0.6 # Dropout, probability to keep units
+dropout = 0.7 # Dropout, probability to keep units
 
 image_tensor_shape = [-1, n_z, n_x, n_y, num_channels]
 
