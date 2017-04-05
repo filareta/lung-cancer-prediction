@@ -2,17 +2,21 @@ import tensorflow as tf
 import pandas as pd
 
 import data_set as ds
-from model_definition import image_tensor_shape
-from model_utils import evaluate_test_set
+from utils import store_to_csv
+import config
+# from model_definition import image_tensor_shape
+# from model_utils import evaluate_test_set
 
 
 data_loader = ds.DataLoader()
-exact_tests = data_loader.get_exact_tests_set()
+test_set = data_loader.get_exact_tests_set()
 test_prediction, tf_test_dataset = None, None
+out_dir = data_loader.results_out_dir()
+print(out_dir)
 
 sess = tf.Session()
-new_saver = tf.train.import_meta_graph('nodules15.ckpt.meta')
-new_saver.restore(sess, tf.train.latest_checkpoint('./'))
+new_saver = tf.train.import_meta_graph(out_dir + '/model_best_err22.ckpt.meta')
+new_saver.restore(sess, out_dir + '/model_best_err22.ckpt')
 all_vars = tf.get_collection('vars')
 for v in all_vars:
     if v.name == 'test_prediction:0':
@@ -20,9 +24,37 @@ for v in all_vars:
     if v.name == 'test_set:0':
         tf_test_dataset = v
 
+i = 0
+gen = test_set.yield_input()
+patients, probs = [], []
 
-evaluate_test_set(sess, 
-                  exact_tests, 
-                  image_tensor_shape, 
-                  test_prediction, 
-                  tf_test_dataset)
+try:
+    while i < test_set.num_samples:
+        patient, test_img = gen.__next__()
+        test_img_reshape = tf.reshape(test_img, 
+            shape=[-1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y, 1])
+        test_img = sess.run(test_img_reshape)
+        i += 1
+        # returns index of column with highest probability
+        # [first class=no cancer=0, second class=cancer=1]
+        if len(test_img):
+            output = sess.run(test_prediction, 
+                feed_dict={tf_test_dataset: test_img})
+            max_ind_f = tf.argmax(output, 1)
+            ind_value = sess.run(max_ind_f)
+            patients.append(patient)
+            max_prob = output[0][ind_value][0]
+            if ind_value[0] == config.NO_CANCER_CLS:
+                max_prob = 1.0 - max_prob
+            probs.append(max_prob)
+
+            print("Output {} for patient with id {}, predicted output {}.".format(
+                max_prob, patient, output[0]))
+
+        else:
+            print("Corrupted test image, incorrect shape for patient {}".format(
+                patient))
+except Exception as e:
+    print("Storing results failed with: {}".format(e))
+
+store_to_csv(patients, probs, config.SOLUTION_FILE_PATH)
