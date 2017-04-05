@@ -1,4 +1,5 @@
 import os
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -72,6 +73,25 @@ class NodulesScansLoader(PatientImageLoader):
         return 'nodules_scans_loader'
 
 
+class SegmentedLungsScansLoader(PatientImageLoader):
+    def __init__(self, images_dir=config.SEGMENTED_LUNGS_DIR):
+        super(SegmentedLungsScansLoader, self).__init__(images_dir)
+
+    def process_scans(self, patient):
+        image = utils.load_patient_image(self._images_input, patient)
+        image = np.stack([cv2.GaussianBlur(scan, (5, 5), 0) for scan in image])
+        image = utils.resize(image)
+
+        return utils.trim_pad_slices(image, pad_with_existing=False)
+
+    def load_scans(self, patient):
+        return self.process_scans(patient)
+
+    @property
+    def name(self):
+        return 'segmented_lungs_loader'
+
+
 class CroppedLungScansLoader(PatientImageLoader):
     def __init__(self, images_dir=config.SEGMENTED_LUNGS_DIR):
         super(CroppedLungScansLoader, self).__init__(images_dir)
@@ -100,7 +120,7 @@ class CroppedLungScansLoader(PatientImageLoader):
 
 if __name__ == '__main__':
     # loader = CroppedLungScansLoader()
-    loader = NodulesScansLoader()
+    loader = SegmentedLungsScansLoader()
     for patient in os.listdir(config.SEGMENTED_LUNGS_DIR):
         lungs = loader.process_scans(patient)
         plt.imshow(lungs[80], cmap='gray')

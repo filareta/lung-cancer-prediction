@@ -14,7 +14,7 @@ class DataLoader(object):
                  exact_tests=config.TEST_PATIENTS_IDS,
                  train_set=config.TRAINING_PATIENTS_IDS,
                  validation_set=config.VALIDATION_PATINETS_IDS):
-        self._images_loader = images_loader or pl.NodulesScansLoader()
+        self._images_loader = images_loader or pl.SegmentedLungsScansLoader()
         self._labels = read_csv(labels_input)
 
         self._exact_tests = []

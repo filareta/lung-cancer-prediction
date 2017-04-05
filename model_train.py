@@ -17,7 +17,7 @@ from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 training_iters = 101
 save_step = 5
-validaton_logg_loss_incr_threshold = 0.1
+validaton_logg_loss_incr_threshold = 0.05
 last_errors = 3
 
 
@@ -100,7 +100,7 @@ with tf.Session() as sess:
 
         if step % save_step == 0:
             print("Storing model snaphost...")
-            saver.save(sess, model_store_path(model_out_dir, '07drop' + str(step)))
+            saver.save(sess, model_store_path(model_out_dir, 'lungs' + str(step)))
 
         
         print("============== Train Epoch {} finished!================".format(
@@ -130,7 +130,7 @@ with tf.Session() as sess:
         if validation_log_loss < best_validation_err:
             best_validation_err = validation_log_loss
             print("Storing model snaphost with best validation error: ", best_validation_err)
-            saver.save(sess, model_store_path(model_out_dir, '07drop_best_err' + str(step)))
+            saver.save(sess, model_store_path(model_out_dir, 'lungs_best_err' + str(step)))
         
         if validation_log_loss < 0.1:
             print("Low enough log loss validation error, terminate!")
@@ -148,7 +148,7 @@ with tf.Session() as sess:
 
         validation_errors.append(validation_log_loss)
 
-    saver.save(sess, model_store_path(model_out_dir, '07drop_last'))
+    saver.save(sess, model_store_path(model_out_dir, 'lungs_last'))
     print("Model saved...")
     store_error_plots(validation_errors, train_errors_per_epoch)
 
