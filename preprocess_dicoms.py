@@ -13,6 +13,8 @@ from utils import store_patient_image
 
 
 NUM_PROCESSES = multiprocessing.cpu_count()
+# segmentation_algo = ls.MorphologicalSegmentation()
+segmentation_algo = ls.WatershedSegmentation()
 
 
 def load_scans(patient):
@@ -103,7 +105,7 @@ def process_patients_chunk(patients):
             scans = load_scans(patient)
             patient_imgs = get_pixels_hu(scans)
 
-            segmented_lungs = np.stack([ls.get_segmented_lungs(image)
+            segmented_lungs = np.stack([segmentation_algo.get_segmented_lungs(image)
                                         for image in patient_imgs])
             
             store_patient_image(config.SEGMENTED_LUNGS_DIR, segmented_lungs, patient)
