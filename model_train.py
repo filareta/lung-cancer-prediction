@@ -76,7 +76,7 @@ saver = tf.train.Saver()
 
 validation_errors = []
 train_errors_per_epoch = []
-best_validation_err = 0.05
+best_validation_err = 1.0
 
 # Launch the graph
 with tf.Session() as sess:
