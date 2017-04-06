@@ -1,4 +1,4 @@
-import numpy as np # linear algebra
+import numpy as np
 import os
 
 from skimage import measure, morphology, segmentation
@@ -10,7 +10,9 @@ from skimage.segmentation import clear_border
 from scipy import ndimage as ndi
 import matplotlib.pyplot as plt
 import scipy.misc
-import numpy as np
+
+import config
+
 
 # Optimal threshold, found in an article about segmentation algorithm using
 # morphological operations. This is in HU units.
@@ -31,7 +33,7 @@ class SegmentationAlgorithm(object):
         return scan
 
     def get_lung_nodules_candidates(self, patient_imgs):
-        nodules = [apply_threshold(scan) for scan in patient_imgs]
+        nodules = [self.apply_threshold(scan) for scan in patient_imgs]
         return np.stack([nodule for nodule in nodules if nodule.any()])
 
 
@@ -197,3 +199,13 @@ class WatershedSegmentation(SegmentationAlgorithm):
         marker_watershed += marker_external * 128
         
         return marker_internal, marker_external, marker_watershed
+
+
+def get_segmentation_algorithm():
+    if config.SEGMENTATION_ALGO == config.MORPHOLOGICAL_OPERATIONS:
+        return MorphologicalSegmentation()
+    if config.SEGMENTATION_ALGO == config.WATERSHED:
+        return WatershedSegmentation()
+
+    # default for now
+    return MorphologicalSegmentation()

@@ -7,6 +7,9 @@ import config
 import lung_segmentation as ls
 
 
+segmentation_algo = ls.get_segmentation_algorithm()
+
+
 class PatientImageLoader(object):
     def __init__(self, images_dir):
         self._images_input = images_dir or config.SEGMENTED_LUNGS_DIR
@@ -59,7 +62,7 @@ class NodulesScansLoader(PatientImageLoader):
 
     def process_scans(self, patient):
         image = utils.load_patient_image(self._images_input, patient)
-        nodules = ls.get_lung_nodules_candidates(image)
+        nodules = segmentation_algo.get_lung_nodules_candidates(image)
         nodules = utils.resize(nodules)
 
         return utils.trim_pad_slices(nodules)
@@ -84,7 +87,7 @@ class CroppedLungScansLoader(PatientImageLoader):
             print("Could not load image {}".format(e))
             return image
 
-        nodules = ls.get_lung_nodules_candidates(image)
+        nodules = segmentation_algo.get_lung_nodules_candidates(image)
         # Involves resizing currently, removing background must be improved
         nodules = utils.remove_background_rows_3d(nodules)
 

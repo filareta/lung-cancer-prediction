@@ -13,8 +13,9 @@ from utils import store_patient_image
 
 
 NUM_PROCESSES = multiprocessing.cpu_count()
-# segmentation_algo = ls.MorphologicalSegmentation()
-segmentation_algo = ls.WatershedSegmentation()
+
+
+segmentation_algo = ls.get_segmentation_algorithm()
 
 
 def load_scans(patient):
