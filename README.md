@@ -98,3 +98,39 @@
   *   Installing on Windows - https://www.tensorflow.org/install/install_windows
   *   Installing on Ubuntu - https://www.tensorflow.org/install/install_linux
   *   Installing on Mac OS X - https://www.tensorflow.org/install/install_mac
+
+
+###  How to start data preprocessing? ###
+  
+To start processing the dicom files you need to run
+
+   
+```
+#!shell
+
+     python preprocess_dicoms.py
+```
+
+
+
+ Source and destination directories are configurable using the ***config.py***:
+
+   * ALL_IMGS points to the directory with dicom files for each patient
+   * SEGMENTED_LUNGS_DIR points to the directory where the segmented lungs will be stored in a 
+    .npz file for each patient (compressed numpy array)
+
+
+
+### How to start model training? ###
+
+
+ To start model training simply execute
+ 
+
+```
+#!shell
+
+     python model_train.py
+```
+
+ Configuration and definitions of the layers for the CNN are stored in ***model_definition.py***
