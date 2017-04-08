@@ -97,13 +97,14 @@ def trim_pad_slices(scans, pad_with_existing=True,
         if pad_with_existing:
             padding = []
             for slice_chunk in np.array_split(scans, pad):
-                # TODO: Think of an improvement, not well sorted 
-                # by the slice location
+                padding.extend(slice_chunk)
                 padding.append(slice_chunk[-1])
+
+            #contains originals also, doubles the last slice in the chunk
+            return np.stack(padding)
         else:
             padding = np.full((pad, x, y), padding_value, scans.dtype)
-
-        return np.vstack([scans, padding])
+            return np.vstack([scans, padding])
 
     trim = slices - config.SLICES
     trimmed = []
@@ -118,7 +119,7 @@ def count_background_rows(image, background=config.BACKGROUND):
 
 
 def remove_background_rows(image, background=config.BACKGROUND):
-    return image[~np.all(image == background, axis=1)]
+    return image[40:image.shape[0]-40, 20:image.shape[1]-20]
 
 
 def remove_background_rows_3d(scans, background=config.BACKGROUND):
