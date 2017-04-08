@@ -99,12 +99,11 @@ def evaluate_test_set(sess,
                       feed_data_key,
                       export_csv=True):
     i = 0
-    gen = test_set.yield_input()
     patients, probs = [], []
 
     try:
         while i < test_set.num_samples:
-            patient, test_img = gen.__next__()
+            patient, test_img = test_set.next_patient()
             test_img_reshape = tf.reshape(test_img, 
                 shape=test_img_shape)
             test_img = sess.run(test_img_reshape)

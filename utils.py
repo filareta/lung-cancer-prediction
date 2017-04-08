@@ -60,10 +60,10 @@ def read_csv_column(input_file, columns=[0]):
 
 
 def store_to_csv(patients, labels, csv_file_path):
-    df = pd.DataFrame(data={config.ID_COLUMN_NAME: patients,
-                            config.COLUMN_NAME: labels}, 
-                      columns=[config.ID_COLUMN_NAME,
-                               config.COLUMN_NAME])
+    index = pd.Index(data=patients, name=config.ID_COLUMN_NAME)
+    df = pd.DataFrame(data={config.COLUMN_NAME: labels}, 
+                      columns=[config.COLUMN_NAME],
+                      index=index)
     df.to_csv(csv_file_path)
 
 

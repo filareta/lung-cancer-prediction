@@ -114,7 +114,6 @@ class DataSet(object):
         self._finished_epochs = 0
         self._num_samples = len(self._data_set)
 
-    #TODO: Simplify since unlabeled data is already filtered here
     def next_batch(self, batch_size):
         assert batch_size <= self._num_samples
         start = self._index_in_epoch
@@ -150,6 +149,18 @@ class DataSet(object):
                 self._num_samples))
         return data_set, labels
 
+    # Used during exact testing phase, here no labels are returned
+    def next_patient(self):
+        if self._index_in_epoch >= self._num_samples:
+            return (None, [])
+
+        patient_id = self._data_set[self._index_in_epoch]
+        self._index_in_epoch += 1
+        image = self._load_patient(patient_id)
+        if self._validate_input_shape(image):
+            return (patient_id, image)
+        return (patient_id, [])
+
     def _patient_with_label(self, patient_id):
         label = self._data_loader.get_label(patient_id)
         if label is None:
@@ -160,15 +171,6 @@ class DataSet(object):
             return (image, label)
         
         return ([], None)
-
-    # Used during exact testing phase, here no labels are returned
-    def yield_input(self):
-        for patient in self._data_set:
-            image = self._load_patient(patient)
-            if self._validate_input_shape(image):
-                yield patient, self._load_patient(patient)
-            else:
-                yield (patient, [])
 
     def _load_patient(self, patient):
         return self._data_loader.load_image(patient)
