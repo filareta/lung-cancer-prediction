@@ -16,7 +16,7 @@ from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 training_iters = 101
 save_step = 5
-validaton_logg_loss_incr_threshold = 0.1
+validaton_logg_loss_incr_threshold = 0.05
 last_errors = 3
 
 
@@ -75,6 +75,7 @@ saver = tf.train.Saver()
 
 validation_errors = []
 train_errors_per_epoch = []
+best_validation_err = 1.0
 
 # Launch the graph
 with tf.Session() as sess:
@@ -124,6 +125,13 @@ with tf.Session() as sess:
         print('Validation accuracy: %.1f%%' % validation_acc)
         print("<<=== LOG LOSS overall validation samples: {} ===>>.".format(
             validation_log_loss))
+
+        if validation_log_loss < best_validation_err:
+            best_validation_err = validation_log_loss
+            print("Storing model snaphost with best validation error: ", best_validation_err)
+            if step % save_step != 0:
+                saver.save(sess, model_store_path(model_out_dir, 'best_err' + str(step)))
+
         
         if validation_log_loss < 0.1:
             print("Low enough log loss validation error, terminate!")
