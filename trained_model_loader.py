@@ -15,8 +15,8 @@ out_dir = data_loader.results_out_dir()
 print(out_dir)
 
 sess = tf.Session()
-new_saver = tf.train.import_meta_graph(out_dir + '/model_best_err22.ckpt.meta')
-new_saver.restore(sess, out_dir + '/model_best_err22.ckpt')
+new_saver = tf.train.import_meta_graph(out_dir + '/model_lungs_best_err5.ckpt.meta')
+new_saver.restore(sess, out_dir + '/model_lungs_best_err5.ckpt')
 all_vars = tf.get_collection('vars')
 for v in all_vars:
     if v.name == 'test_prediction:0':
@@ -25,12 +25,11 @@ for v in all_vars:
         tf_test_dataset = v
 
 i = 0
-gen = test_set.yield_input()
 patients, probs = [], []
 
 try:
     while i < test_set.num_samples:
-        patient, test_img = gen.__next__()
+        patient, test_img = test_set.next_patient()
         test_img_reshape = tf.reshape(test_img, 
             shape=[-1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y, 1])
         test_img = sess.run(test_img_reshape)
