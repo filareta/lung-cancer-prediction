@@ -1,11 +1,12 @@
 import os
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import log_loss
 import tensorflow as tf
 
 import config
-from utils import store_to_csv
+from utils import store_to_csv, read_csv
 
 
 def store_error_plots(validation_err, train_err):
@@ -132,5 +133,33 @@ def evaluate_test_set(sess,
 
     if export_csv:
         store_to_csv(patients, probs, config.SOLUTION_FILE_PATH)
+
+
+def evaluate_solution(sample_solution, with_merged_report=True):
+    true_labels = read_csv(config.REAL_SOLUTION_CSV)
+    predictions = read_csv(sample_solution)
+    patients = true_labels.index.values
+
+    probs, labels, probs_cls = [], [], []
+    for patient in patients:
+        prob = predictions.get_value(patient, config.COLUMN_NAME)
+        probs.append(prob)
+        probs_cls.append([1.0 - prob, prob])
+        labels.append(true_labels.get_value(patient, config.COLUMN_NAME))
+    
+    probs_cls = np.array(probs_cls)
+    log_loss_err = evaluate_log_loss(probs_cls, labels)
+    acc = accuracy(probs_cls, np.array(labels))
+
+    print("Log loss: ", round(log_loss_err, 5))
+    print("Accuracy: %.1f%%" % acc)
+
+    if with_merged_report:
+        df = pd.DataFrame(data={'prediction': probs, 'label': labels},
+                     columns=['prediction', 'label'],
+                     index=true_labels.index)
+        df.to_csv('report_{}'.format(os.path.basename(sample_solution)))
+
+    return (log_loss_err, acc)
 
 
