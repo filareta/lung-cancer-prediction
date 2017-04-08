@@ -130,7 +130,7 @@ class MorphologicalSegmentation(SegmentationAlgorithm):
 
 
 class WatershedSegmentation(SegmentationAlgorithm):
-    def __init__(self, threshold=-420):
+    def __init__(self, threshold=-400):
         super(WatershedSegmentation, self).__init__(threshold)
 
     def get_segmented_lungs(self, image, plot=False):
