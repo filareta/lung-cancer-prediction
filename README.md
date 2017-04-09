@@ -23,6 +23,7 @@
    * **scikit-learn**
    * **scipy**
    * **sklearn**
+   * **pandas**
    * ** tensorflow**
    * **opencv** module for python
   
