@@ -11,6 +11,7 @@ from model_definition import weights, biases, dropout, image_tensor_shape
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
+from model_utils import high_error_increase
 from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 
