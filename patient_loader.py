@@ -91,7 +91,7 @@ class CroppedLungScansLoader(PatientImageLoader):
         # Involves resizing currently, removing background must be improved
         nodules = utils.remove_background_rows_3d(nodules)
 
-        return utils.trim_pad_slices(nodules)
+        return utils.trim_pad_slices(nodules, pad_with_existing=False)
     
     def load_scans(self, patient):
         return self.process_scans(patient)
