@@ -83,13 +83,10 @@ class DataLoader(object):
         return DataSet(self._train_set, self)
 
     def get_validation_set(self):
-        return DataSet(self._validation_set, self)
-
-    def get_test_set(self):
-        return DataSet(self._test_set, self)
+        return DataSet(self._validation_set, self, False)
 
     def get_exact_tests_set(self):
-        return DataSet(self._exact_tests, self)
+        return DataSet(self._exact_tests, self, False)
 
     def load_image(self, patient):
         scans = self._images_loader.load_scans(patient)
@@ -107,12 +104,13 @@ class DataLoader(object):
 
 
 class DataSet(object):
-    def __init__(self, data_set, data_loader):
+    def __init__(self, data_set, data_loader, shuffle=True):
         self._data_set = data_set
         self._data_loader = data_loader
         self._index_in_epoch = 0
         self._finished_epochs = 0
         self._num_samples = len(self._data_set)
+        self._shuffle = shuffle
 
     def next_batch(self, batch_size):
         assert batch_size <= self._num_samples
@@ -125,7 +123,8 @@ class DataSet(object):
             start = 0
             self._index_in_epoch = batch_size
             # Shuffle data
-            rnd.shuffle(self._data_set)
+            if self._shuffle:
+                rnd.shuffle(self._data_set)
         
         end = self._index_in_epoch
 
