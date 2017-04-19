@@ -24,6 +24,7 @@
    * **scipy**
    * **sklearn**
    * **pandas**
+   * **imutils**
    * ** tensorflow**
    * **opencv** module for python
   
