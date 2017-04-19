@@ -4,6 +4,8 @@ import pandas as pd
 import data_set as ds
 from utils import store_to_csv
 import config
+# from model_definition import image_tensor_shape
+# from model_utils import evaluate_test_set
 
 
 data_loader = ds.DataLoader()
@@ -13,8 +15,8 @@ out_dir = data_loader.results_out_dir()
 print(out_dir)
 
 sess = tf.Session()
-new_saver = tf.train.import_meta_graph(out_dir + '/model_15.ckpt.meta')
-new_saver.restore(sess, out_dir + '/model_15.ckpt')
+new_saver = tf.train.import_meta_graph(out_dir + '/model_lungs_best_err5.ckpt.meta')
+new_saver.restore(sess, out_dir + '/model_lungs_best_err5.ckpt')
 all_vars = tf.get_collection('vars')
 for v in all_vars:
     if v.name == 'test_prediction:0':

@@ -100,7 +100,7 @@ with tf.Session() as sess:
 
         if step % save_step == 0:
             print("Storing model snaphost...")
-            saver.save(sess, model_store_path(model_out_dir, step))
+            saver.save(sess, model_store_path(model_out_dir, 'lungs' + str(step)))
 
         
         print("============== Train Epoch {} finished!================".format(
@@ -133,7 +133,6 @@ with tf.Session() as sess:
             if step % save_step != 0:
                 saver.save(sess, model_store_path(model_out_dir, 'best_err' + str(step)))
 
-        
         if validation_log_loss < 0.1:
             print("Low enough log loss validation error, terminate!")
             break;

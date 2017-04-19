@@ -1,8 +1,8 @@
 LABELS_INPUT_DIR = './input'
 ALL_IMGS = 'D:/Fil/stage1'
 
-# SEGMENTED_LUNGS_DIR = '../kaggle-data/segmented_morph_op'
-SEGMENTED_LUNGS_DIR = '../kaggle-data/segmented_watershed'
+SEGMENTED_LUNGS_DIR = '../kaggle-data/segmented_morph_op'
+# SEGMENTED_LUNGS_DIR = '../kaggle-data/segmented_watershed'
 
 PATIENT_LABELS_CSV = LABELS_INPUT_DIR + '/stage1_labels.csv'
 TEST_PATIENTS_IDS = LABELS_INPUT_DIR + '/stage1_sample_submission.csv'
@@ -26,8 +26,8 @@ NO_CANCER_CLS = 0
 OUT_SCAN = -2000
 MIN_BOUND = -1000.0
 MAX_BOUND = 400.0
-IMAGE_PXL_SIZE_X = 236
-IMAGE_PXL_SIZE_Y = 216
+IMAGE_PXL_SIZE_X = 256
+IMAGE_PXL_SIZE_Y = 256
 SLICES = 140
 IMG_SHAPE = (SLICES, IMAGE_PXL_SIZE_X, 
              IMAGE_PXL_SIZE_Y, 1)
@@ -35,4 +35,4 @@ BACKGROUND = 0
 
 WATERSHED = 2
 MORPHOLOGICAL_OPERATIONS = 1
-SEGMENTATION_ALGO = WATERSHED
+SEGMENTATION_ALGO = MORPHOLOGICAL_OPERATIONS
