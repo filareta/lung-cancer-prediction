@@ -123,8 +123,8 @@ def remove_background_rows(image, background=config.BACKGROUND):
     return image[40:image.shape[0]-40, 20:image.shape[1]-20]
 
 
-def rotate_scans(scans):
-    return [imutils.rotate_bound(scan, 10) for scan in scans]
+def rotate_scans(scans, angle=10):
+    return np.stack([imutils.rotate_bound(scan, angle) for scan in scans])
 
 
 def remove_background_rows_3d(scans, background=config.BACKGROUND):
