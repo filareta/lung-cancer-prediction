@@ -1,6 +1,7 @@
 import os
 import cv2
 import math
+import imutils
 
 import numpy as np
 import pandas as pd
@@ -120,6 +121,10 @@ def count_background_rows(image, background=config.BACKGROUND):
 
 def remove_background_rows(image, background=config.BACKGROUND):
     return image[40:image.shape[0]-40, 20:image.shape[1]-20]
+
+
+def rotate_scans(scans):
+    return [imutils.rotate_bound(scan, 10) for scan in scans]
 
 
 def remove_background_rows_3d(scans, background=config.BACKGROUND):
