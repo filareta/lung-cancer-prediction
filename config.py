@@ -13,7 +13,7 @@ TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 MODELS_STORE_DIR = './models'
 SOLUTION_FILE_PATH = './solution.csv'
 REAL_SOLUTION_CSV = './input/stage1_solution.csv'
-RESTORE_MODEL_CKPT = '/model_lungs_best_err5.ckpt'
+RESTORE_MODEL_CKPT = '/model_lungs10.ckpt'
 
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'

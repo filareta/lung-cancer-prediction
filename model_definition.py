@@ -9,7 +9,7 @@ batch_size = 1
 
 depth = 16
 second_depth = 64
-third_depth = 64
+third_depth = 32
 last_depth = 32
 
 hidden = 100
