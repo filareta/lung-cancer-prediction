@@ -106,11 +106,7 @@ with tf.Session() as sess:
         print("============== Train Epoch {} finished!================".format(
             training_set.finished_epochs))
         train_acc_epoch = accuracy(np.stack(train_pred), np.stack(train_labels))
-        mean_err = tf.reduce_mean(train_errors)
-        mean_err_value = sess.run(mean_err)
-        print('===============Train accuracy %.1f%% on epoch: %d' % (
-            train_acc_epoch, training_set.finished_epochs))
-        print('====== Reduced mean error {} ========='.format(mean_err_value))
+
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
         print('<-===== Train log loss error {} ======->'.format(train_log_loss))
 
