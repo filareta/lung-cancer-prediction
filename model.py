@@ -1,9 +1,7 @@
 import tensorflow as tf
 from functools import reduce
 
-from model_definition import image_tensor_shape
 from model_definition import pool_windows, pool_strides
-
 
 
 # Create some wrappers for simplicity
@@ -21,9 +19,6 @@ def maxpool3d(x, k, strides=[1, 1, 1, 1, 1], padding='SAME'):
 
 # Create model
 def conv_net(x, weights, biases, dropout):
-    # Reshape input picture
-    x = tf.reshape(x, shape=image_tensor_shape)
-
     # Convolution Layer
     conv1 = conv3d(x, weights['wc1'], biases['bc1'], padding='VALID')
     # Max Pooling (down-sampling)

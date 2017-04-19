@@ -62,7 +62,7 @@ class DataLoader(object):
 
     def get_label(self, patient_id):
         try:
-            #[first class=no cancer=0, second class=cancer=1]
+            # [first class=no cancer=0, second class=cancer=1]
             # [1, 0]-> no cancer
             # [0, 1] -> cancer
             clazz = self._labels.get_value(patient_id, config.COLUMN_NAME)
@@ -90,8 +90,6 @@ class DataLoader(object):
 
     def load_image(self, patient):
         scans = self._images_loader.load_scans(patient)
-        if len(scans):
-            return scans.reshape(*config.IMG_SHAPE)
         return scans
 
     def results_out_dir(self):

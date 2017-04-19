@@ -7,7 +7,8 @@ import config
 
 from model_definition import x, y, keep_prob, learning_rate, batch_size
 from model_definition import tf_valid_dataset, tf_test_dataset
-from model_definition import weights, biases, dropout, image_tensor_shape
+from model_definition import weights, biases, dropout
+from model_utils import input_img, reshape_op
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
@@ -78,6 +79,7 @@ validation_errors = []
 train_errors_per_epoch = []
 best_validation_err = 1.0
 
+
 # Launch the graph
 with tf.Session() as sess:
     sess.run(init)
@@ -90,8 +92,8 @@ with tf.Session() as sess:
 
         while last_epoch == training_set.finished_epochs:
             batch_data, batch_labels = training_set.next_batch(batch_size)
-
-            feed_dict = {x: np.stack(batch_data), y: batch_labels, keep_prob: dropout}
+            reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(batch_data)})
+            feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
             _, loss, predictions = sess.run([optimizer, cost, train_prediction], 
                                             feed_dict=feed_dict)
             train_errors.append(loss)
@@ -152,7 +154,6 @@ with tf.Session() as sess:
 
     # ============= REAL TEST DATA EVALUATION =====================
     evaluate_test_set(sess, 
-                      exact_tests, 
-                      image_tensor_shape,
+                      exact_tests,
                       test_prediction,
                       tf_test_dataset)

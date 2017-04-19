@@ -44,7 +44,6 @@ n_input = n_x * n_y * n_z
 n_classes = 2
 dropout = 0.7 # Dropout, probability to keep units
 
-image_tensor_shape = [-1, n_z, n_x, n_y, num_channels]
 
 # tf Graph input
 x = tf.placeholder(tf.float32, shape=(batch_size, n_z, n_x, n_y, num_channels), 
@@ -56,7 +55,6 @@ tf_valid_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_ch
     name='validation_set')
 tf_test_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
     name='test_set')
-
 
 # This handles padding in both convolution and pooling layers
 strides = [[1, 1, 1],

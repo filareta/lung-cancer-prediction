@@ -13,6 +13,7 @@ TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 MODELS_STORE_DIR = './models'
 SOLUTION_FILE_PATH = './solution.csv'
 REAL_SOLUTION_CSV = './input/stage1_solution.csv'
+RESTORE_MODEL_CKPT = '/model_lungs_best_err5.ckpt'
 
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'
@@ -30,7 +31,7 @@ IMAGE_PXL_SIZE_X = 256
 IMAGE_PXL_SIZE_Y = 256
 SLICES = 140
 IMG_SHAPE = (SLICES, IMAGE_PXL_SIZE_X, 
-             IMAGE_PXL_SIZE_Y, 1)
+             IMAGE_PXL_SIZE_Y)
 BACKGROUND = 0
 
 WATERSHED = 2

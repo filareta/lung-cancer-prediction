@@ -9,6 +9,13 @@ import config
 from utils import store_to_csv, read_csv
 
 
+input_img = tf.placeholder(tf.float32, 
+    shape=(1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y))
+# Reshape input picture
+reshape_op = tf.reshape(input_img, 
+    shape=(-1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y, 1))
+
+
 def store_error_plots(validation_err, train_err):
     try:
         plt.plot(validation_err)
@@ -77,8 +84,9 @@ def evaluate_validation_set(sess,
     index = 0
     while index < validation_set.num_samples:
         validation_batch, validation_label = validation_set.next_batch(batch_size)
+        reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(validation_batch)})
         batch_pred = sess.run(valid_prediction, 
-            feed_dict={feed_data_key: np.stack(validation_batch)})
+            feed_dict={feed_data_key: reshaped})
        
         validation_pred.extend(batch_pred)
         validation_labels.extend(validation_label)
@@ -94,7 +102,6 @@ def evaluate_validation_set(sess,
 
 def evaluate_test_set(sess, 
                       test_set,
-                      test_img_shape,
                       test_prediction,
                       feed_data_key,
                       export_csv=True):
@@ -104,9 +111,7 @@ def evaluate_test_set(sess,
     try:
         while i < test_set.num_samples:
             patient, test_img = test_set.next_patient()
-            test_img_reshape = tf.reshape(test_img, 
-                shape=test_img_shape)
-            test_img = sess.run(test_img_reshape)
+            test_img = sess.run(reshape_op, feed_dict={input_img: test_img})
             i += 1
             # returns index of column with highest probability
             # [first class=no cancer=0, second class=cancer=1]
