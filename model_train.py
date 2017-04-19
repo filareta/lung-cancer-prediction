@@ -84,7 +84,7 @@ best_validation_err = 1.0
 with tf.Session() as sess:
     sess.run(init)
 
-    for step in range(1, training_iters): 
+    for step in range(1, training_iters):
         last_epoch = training_set.finished_epochs
         train_errors = []
         train_pred = []
@@ -153,7 +153,7 @@ with tf.Session() as sess:
 
 
     # ============= REAL TEST DATA EVALUATION =====================
-    evaluate_test_set(sess, 
+    evaluate_test_set(sess,
                       exact_tests,
                       test_prediction,
                       tf_test_dataset)

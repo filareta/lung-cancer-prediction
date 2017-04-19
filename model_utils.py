@@ -11,8 +11,14 @@ from utils import store_to_csv, read_csv
 
 input_img = tf.placeholder(tf.float32, 
     shape=(1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y))
-# Reshape input picture
+# Reshape input picture, first dimension is kept to be able to support batches
 reshape_op = tf.reshape(input_img, 
+    shape=(-1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y, 1))
+
+input_test_img = tf.placeholder(tf.float32, 
+    shape=(config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y))
+# Reshape test input picture
+reshape_test_op = tf.reshape(input_test_img, 
     shape=(-1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y, 1))
 
 
@@ -111,7 +117,7 @@ def evaluate_test_set(sess,
     try:
         while i < test_set.num_samples:
             patient, test_img = test_set.next_patient()
-            test_img = sess.run(reshape_op, feed_dict={input_img: test_img})
+            test_img = sess.run(reshape_test_op, feed_dict={input_test_img: test_img})
             i += 1
             # returns index of column with highest probability
             # [first class=no cancer=0, second class=cancer=1]
