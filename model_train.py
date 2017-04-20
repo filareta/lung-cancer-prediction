@@ -12,7 +12,7 @@ from model_utils import input_img, reshape_op
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
-from model_utils import high_error_increase
+from model_utils import high_error_increase, display_confusion_matrix_info
 from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 
@@ -86,7 +86,6 @@ with tf.Session() as sess:
 
     for step in range(1, training_iters):
         last_epoch = training_set.finished_epochs
-        train_errors = []
         train_pred = []
         train_labels = []
 
@@ -96,7 +95,6 @@ with tf.Session() as sess:
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
             _, loss, predictions = sess.run([optimizer, cost, train_prediction], 
                                             feed_dict=feed_dict)
-            train_errors.append(loss)
             train_pred.extend(predictions)
             train_labels.extend(batch_labels)
 
@@ -111,6 +109,8 @@ with tf.Session() as sess:
 
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
         print('<-===== Train log loss error {} ======->'.format(train_log_loss))
+        print("================ Train set confusion matrix ====================")
+        display_confusion_matrix_info(train_labels, train_pred)
 
         train_errors_per_epoch.append(train_log_loss)
 

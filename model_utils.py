@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import log_loss
+from sklearn.metrics import log_loss, confusion_matrix
 import tensorflow as tf
 
 import config
@@ -45,13 +45,34 @@ def high_error_increase(errors,
         for x in errors)
 
 
+def get_max_prob(output, ind_value):
+    max_prob = output[ind_value]
+    if ind_value == config.NO_CANCER_CLS:
+        max_prob = 1.0 - max_prob
+
+    return max_prob
+
+
 def accuracy(predictions, labels):
     return (100 * np.sum(np.argmax(predictions, 1) == labels) 
         / predictions.shape[0])
 
 
-def evaluate_log_loss(predictions, labels):
-    return log_loss(labels, predictions, labels=[0, 1])
+def evaluate_log_loss(predictions, target_labels):
+    return log_loss(target_labels, predictions, labels=[0, 1])
+
+
+def get_confusion_matrix(target_labels, predictions, labels=[0, 1]):
+    predicted_labels = np.argmax(predictions, 1)
+    return confusion_matrix(target_labels, predicted_labels, labels)
+
+
+def display_confusion_matrix_info(target_labels, predictions, labels=[0, 1]):
+    matrix = get_confusion_matrix(target_labels, predictions, labels)
+    print("True negatives count: ", matrix[0][0])
+    print("False negatives count: ", matrix[1][0])
+    print("True positives count: ", matrix[1][1])
+    print("False positives count: ", matrix[0][1])
 
 
 def calculate_conv_output_size(x, y, z, strides, filters, paddings):
@@ -103,6 +124,8 @@ def evaluate_validation_set(sess,
     validation_log_loss = evaluate_log_loss(validation_pred, 
                                             validation_labels)
 
+    display_confusion_matrix_info(validation_labels, validation_pred)
+
     return (validation_acc, validation_log_loss)
 
 
@@ -122,14 +145,12 @@ def evaluate_test_set(sess,
             # returns index of column with highest probability
             # [first class=no cancer=0, second class=cancer=1]
             if len(test_img):
+                patients.append(patient)
                 output = sess.run(test_prediction, 
                     feed_dict={feed_data_key: test_img})
                 max_ind_f = tf.argmax(output, 1)
                 ind_value = sess.run(max_ind_f)
-                patients.append(patient)
-                max_prob = output[0][ind_value][0]
-                if ind_value[0] == config.NO_CANCER_CLS:
-                    max_prob = 1.0 - max_prob
+                max_prob = get_max_prob(output[0], ind_value[0])
                 probs.append(max_prob)
 
                 print("Output {} for patient with id {}, predicted output {}.".format(
@@ -161,13 +182,15 @@ def evaluate_solution(sample_solution, with_merged_report=True):
     log_loss_err = evaluate_log_loss(probs_cls, labels)
     acc = accuracy(probs_cls, np.array(labels))
 
+    display_confusion_matrix_info(labels, probs_cls)
+
     print("Log loss: ", round(log_loss_err, 5))
     print("Accuracy: %.1f%%" % acc)
 
     if with_merged_report:
         df = pd.DataFrame(data={'prediction': probs, 'label': labels},
-                     columns=['prediction', 'label'],
-                     index=true_labels.index)
+                          columns=['prediction', 'label'],
+                          index=true_labels.index)
         df.to_csv('report_{}'.format(os.path.basename(sample_solution)))
 
     return (log_loss_err, acc)
