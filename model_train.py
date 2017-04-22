@@ -90,11 +90,10 @@ with tf.Session() as sess:
     sess.run(init)
 
     for step in range(1, training_iters):
-        last_epoch = training_set.finished_epochs
         train_pred = []
         train_labels = []
 
-        while last_epoch == training_set.finished_epochs:
+        for _ in range(training_set.num_samples):
             batch_data, batch_labels = training_set.next_batch(batch_size)
             reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(batch_data)})
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
@@ -108,8 +107,8 @@ with tf.Session() as sess:
             saver.save(sess, model_store_path(model_out_dir, 'lungs' + str(step)))
 
         
-        print("============== Train Epoch {} finished!================".format(
-            training_set.finished_epochs))
+        print("============== Train Epoch {} finished! {} samples processed.".format(
+            training_set.finished_epochs, len(train_pred)))
         train_acc_epoch = accuracy(np.stack(train_pred), np.stack(train_labels))
 
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
