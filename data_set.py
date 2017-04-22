@@ -111,35 +111,30 @@ class DataSet(object):
         self._shuffle = shuffle
 
     def next_batch(self, batch_size):
-        assert batch_size <= self._num_samples
-        start = self._index_in_epoch
-
-        self._index_in_epoch += batch_size
         if self._index_in_epoch >= self._num_samples:
             # Epoche has finished, start new iteration
             self._finished_epochs += 1
-            start = 0
-            self._index_in_epoch = batch_size
+            self._index_in_epoch = 0
             # Shuffle data
             if self._shuffle:
                 rnd.shuffle(self._data_set)
         
+        start = self._index_in_epoch
+        self._index_in_epoch += batch_size
         end = self._index_in_epoch
+
+        if end > self._num_samples:
+            print("Not enough data for the batch to be retrieved.")
+            return [], []
 
         data_set, labels = [], []
 
-        while start < end and end < self._num_samples:
-            patient = self._data_set[start]
+        for patient in self._data_set[start:end]:
             image, label = self._patient_with_label(patient)
-          
             if len(image) and label is not None:
                 labels.append(label)
                 data_set.append(image)
-            else:
-                end += 1
-            start +=1
 
-        self._index_in_epoch = end
         if len(data_set) < batch_size:
             print("Current batch size is less: {}".format(len(data_set)))
             print("Start {}, end {}, samples {}".format(start, end, 
@@ -186,3 +181,6 @@ class DataSet(object):
 
 if __name__ == '__main__':
     data_loader = DataLoader()
+    tr_set = data_loader.get_training_set()
+    val_set = data_loader.get_validation_set()
+    import ipdb; ipdb.set_trace()
