@@ -45,6 +45,7 @@ def conv_net(x, weights, biases, dropout):
     conv4 = maxpool3d(conv4, k=pool_windows['third_pool_layer'], 
                       strides=pool_strides['third_pool_layer'],
                       padding='VALID')
+    conv4 = tf.nn.dropout(conv4, dropout)
     
     conv_shape = conv4.get_shape().as_list()
     fully_con_input_size = reduce(lambda x, y: x * y, conv_shape[1:])

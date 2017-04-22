@@ -19,7 +19,8 @@ from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 training_iters = 101
 save_step = 5
 validaton_logg_loss_incr_threshold = 0.05
-last_errors = 3
+last_errors = 2
+tolerance = 5
 
 
 # Add tensors to collection stored in the model graph
@@ -40,8 +41,12 @@ for bias_key, bias_var in biases.items():
 # Construct model
 pred = conv_net(x, weights, biases, dropout)
 
+beta = 0.01
 # Define loss and optimizer
 cost = sparse_loss_with_logits(pred, y)
+# add l2 regularization on the weights on the fully connected layer
+regularizer = tf.nn.l2_loss(weights['wd1']) + tf.nn.l2_loss(weights['wd2'])
+cost = tf.reduce_mean(cost + beta * regularizer)
 optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate).minimize(cost)
 
 
@@ -112,7 +117,7 @@ with tf.Session() as sess:
         print("================ Train set confusion matrix ====================")
         display_confusion_matrix_info(train_labels, train_pred)
 
-        train_errors_per_epoch.append(train_log_loss)
+        
 
         print("<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>")
         validation_acc, validation_log_loss = evaluate_validation_set(sess, 
@@ -139,13 +144,21 @@ with tf.Session() as sess:
                                validation_log_loss,
                                last_errors,
                                validaton_logg_loss_incr_threshold):
+            if tolerance and train_log_loss <= train_errors_per_epoch[-1]:
+                print("Train error still decreases, continue...")
+                tolerance -= 1
+                validation_errors.append(validation_log_loss)
+                train_errors_per_epoch.append(train_log_loss)
+                continue
+
             print("Validation log loss has increased more than the allowed threshold",
                   " for the past iterations, terminate!")
             print("Last iterations: ", validation_errors[-last_errors:])
             print("Current validation error: ", validation_log_loss)
-            break;
+            break
 
         validation_errors.append(validation_log_loss)
+        train_errors_per_epoch.append(train_log_loss)
 
     saver.save(sess, model_store_path(model_out_dir, 'last'))
     print("Model saved...")

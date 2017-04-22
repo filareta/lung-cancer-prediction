@@ -9,7 +9,7 @@ batch_size = 1
 
 depth = 16
 second_depth = 64
-third_depth = 32
+third_depth = 64
 last_depth = 32
 
 hidden = 100
@@ -42,7 +42,7 @@ n_z = config.SLICES
 num_channels = 1
 n_input = n_x * n_y * n_z
 n_classes = 2
-dropout = 0.7 # Dropout, probability to keep units
+dropout = 0.5 # Dropout, probability to keep units
 
 
 # tf Graph input
@@ -87,18 +87,18 @@ print("Last conv net output size should be: ", out_conv_size)
 # Store layers weight & bias
 weights = {
     # Convolution layers
-    'wc1': tf.Variable(tf.random_normal([first_kernel_size_z, first_kernel_size_x, first_kernel_size_y, num_channels, depth], 
+    'wc1': tf.Variable(tf.truncated_normal([first_kernel_size_z, first_kernel_size_x, first_kernel_size_y, num_channels, depth], 
         stddev=0.01), name='wc1'),
-    'wc2': tf.Variable(tf.random_normal([kernel_size, kernel_size, kernel_size, depth, second_depth], 
+    'wc2': tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, depth, second_depth], 
         stddev=0.01), name='wc2'),
-    'wc3': tf.Variable(tf.random_normal([kernel_size, kernel_size, kernel_size, second_depth, third_depth], 
+    'wc3': tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, second_depth, third_depth], 
         stddev=0.01), name='wc3'),
-    'wc4': tf.Variable(tf.random_normal([kernel_size, kernel_size, kernel_size, third_depth, last_depth], 
+    'wc4': tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, third_depth, last_depth], 
         stddev=0.01), name='wc4'),
     # Fully connected layers
-    'wd1': tf.Variable(tf.random_normal([out_conv_size, hidden], stddev=0.01), name='wd1'),
-    'wd2': tf.Variable(tf.random_normal([hidden, second_hidden], stddev=0.01), name='wd2'),
-    'out': tf.Variable(tf.random_normal([second_hidden, n_classes], stddev=0.01), name='wout')
+    'wd1': tf.Variable(tf.truncated_normal([out_conv_size, hidden], stddev=0.01), name='wd1'),
+    'wd2': tf.Variable(tf.truncated_normal([hidden, second_hidden], stddev=0.01), name='wd2'),
+    'out': tf.Variable(tf.truncated_normal([second_hidden, n_classes], stddev=0.01), name='wout')
 }
 
 biases = {
