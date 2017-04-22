@@ -183,4 +183,3 @@ if __name__ == '__main__':
     data_loader = DataLoader()
     tr_set = data_loader.get_training_set()
     val_set = data_loader.get_validation_set()
-    import ipdb; ipdb.set_trace()
