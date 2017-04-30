@@ -94,6 +94,15 @@ def trim_pad_slices(scans, pad_with_existing=True,
 
     if slices < config.SLICES:
         pad = config.SLICES - slices
+        new_scans = []
+        if pad > slices:
+            # Double the size, scans are already ordered by slice location
+            for scan in scans:
+                new_scans.append(scan) 
+                new_scans.append(scan)
+
+            del scans
+            scans = new_scans
 
         if pad_with_existing:
             padding = []

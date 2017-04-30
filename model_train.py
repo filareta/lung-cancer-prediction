@@ -116,8 +116,6 @@ with tf.Session() as sess:
         print("================ Train set confusion matrix ====================")
         display_confusion_matrix_info(train_labels, train_pred)
 
-        
-
         print("<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>")
         validation_acc, validation_log_loss = evaluate_validation_set(sess, 
                                                                       validation_set,
