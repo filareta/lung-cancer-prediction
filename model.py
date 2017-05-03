@@ -20,7 +20,8 @@ def maxpool3d(x, k, strides=[1, 1, 1, 1, 1], padding='SAME'):
 # Create model
 def conv_net(x, weights, biases, dropout):
     # Convolution Layer
-    conv1 = conv3d(x, weights['wc1'], biases['bc1'], padding='VALID')
+    conv1 = conv3d(x, weights['wc1'], biases['bc1'], 
+        strides=[1, 2, 2, 2, 1], padding='VALID')
     # Max Pooling (down-sampling)
     conv1 = maxpool3d(conv1, k=pool_windows['first_pool_layer'], 
                       strides=pool_strides['first_pool_layer'],

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import utils
 import config
 import lung_segmentation as ls
+import preprocess_dicoms as pd
 
 
 segmentation_algo = ls.get_segmentation_algorithm()
@@ -82,17 +83,17 @@ class SegmentedLungsScansLoader(PatientImageLoader):
 
     def process_scans(self, patient):
         image = utils.load_patient_image(self._images_input, patient)
-        image = np.stack([cv2.GaussianBlur(scan, (5, 5), 0) for scan in image])
+        image = segmentation_algo.get_slices_with_nodules(image)
         image = utils.resize(image)
 
-        return utils.trim_pad_slices(image, pad_with_existing=False)
+        return utils.trim_pad_slices(image, pad_with_existing=True)
 
     def load_scans(self, patient):
         return self.process_scans(patient)
 
     @property
     def name(self):
-        return 'segmented_lungs_loader'
+        return 'segmented_lungs_loader_more_slices'
 
 
 class CroppedLungScansLoader(PatientImageLoader):
@@ -125,8 +126,14 @@ if __name__ == '__main__':
     # loader = CroppedLungScansLoader()
     loader = SegmentedLungsScansLoader()
     for patient in os.listdir(config.SEGMENTED_LUNGS_DIR):
-        lungs = loader.process_scans(patient)
-        plt.imshow(lungs[80], cmap='gray')
-        plt.show()
+        lungs = loader.process_scans('026470d51482c93efc18b9803159c960')
+        original = pd.get_pixels_hu(pd.load_scans('026470d51482c93efc18b9803159c960'))
+        for i, lung in enumerate(lungs):
+            print(i)
+            plt.imshow(lung, cmap='gray')
+            plt.show()
+            plt.imshow(original[i], cmap='gray')
+            plt.show()
+
 
 

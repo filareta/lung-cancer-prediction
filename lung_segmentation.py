@@ -17,6 +17,7 @@ import config
 # Optimal threshold, found in an article about segmentation algorithm using
 # morphological operations. This is in HU units.
 threshold = -420
+nodule_threshold = -180
  
 #TODO: compare performance of the binary_erosion, binary_closing, binary_dilation
 # operations in scipy and skimage libs
@@ -29,12 +30,21 @@ class SegmentationAlgorithm(object):
         pass
 
     def apply_threshold(self, scan):
-        scan[scan < self._threshold] = 0
+        scan[scan < nodule_threshold] = 0
         return scan
 
     def get_lung_nodules_candidates(self, patient_imgs):
         nodules = [self.apply_threshold(scan) for scan in patient_imgs]
         return np.stack([nodule for nodule in nodules if nodule.any()])
+
+    def get_slices_with_nodules(self, patient_imgs):
+        return np.stack([slice_ for slice_ in patient_imgs if 
+            self._has_nodule(slice_)])
+
+    def _has_nodule(self, scan):
+        scan_copy = scan.copy()
+        scan_copy[scan_copy < nodule_threshold] = 0
+        return scan_copy.any()
 
 
 class MorphologicalSegmentation(SegmentationAlgorithm):

@@ -18,13 +18,13 @@ second_hidden = 50
 # Convolution filter size on first layer
 first_kernel_size_x = 5
 first_kernel_size_y = 5
-first_kernel_size_z = 3
+first_kernel_size_z = 4
 
 # Max pooling window size and stride on first layer
-first_pool_stride_x = 4
-first_pool_window_x = 5
-first_pool_stride_y = 4
-first_pool_window_y = 5
+first_pool_stride_x = 3
+first_pool_window_x = 4
+first_pool_stride_y = 3
+first_pool_window_y = 4
 first_pool_stride_z = 2
 first_pool_window_z = 3
 
@@ -57,7 +57,7 @@ tf_test_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_cha
     name='test_set')
 
 # This handles padding in both convolution and pooling layers
-strides = [[1, 1, 1],
+strides = [[2, 2, 2],
            [first_pool_stride_z, first_pool_stride_x, first_pool_stride_y],
            [1, 1, 1],
            [pool_stride, pool_stride, pool_stride],
