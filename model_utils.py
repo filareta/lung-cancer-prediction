@@ -74,6 +74,21 @@ def display_confusion_matrix_info(target_labels, predictions, labels=[0, 1]):
     print("True positives count: ", matrix[1][1])
     print("False positives count: ", matrix[0][1])
 
+    return matrix
+
+def get_sensitivity(confusion_matrix):
+    true_positives = confusion_matrix[1][1]
+    false_negatives = confusion_matrix[1][0]
+
+    return true_positives / float(true_positives + false_negatives)
+
+
+def get_specifity(confusion_matrix):
+    true_negatives = confusion_matrix[0][0]
+    false_positives = confusion_matrix[0][1]
+
+    return true_negatives / float(true_negatives + false_positives)
+
 
 def calculate_conv_output_size(x, y, z, strides, filters, paddings):
     # Currently axes are transposed [z, x, y]
@@ -124,9 +139,11 @@ def evaluate_validation_set(sess,
     validation_log_loss = evaluate_log_loss(validation_pred, 
                                             validation_labels)
 
-    display_confusion_matrix_info(validation_labels, validation_pred)
+    confusion_matrix = display_confusion_matrix_info(validation_labels, validation_pred)
+    sensitivity = get_sensitivity(confusion_matrix)
+    specifity = get_specifity(confusion_matrix)
 
-    return (validation_acc, validation_log_loss)
+    return (validation_acc, validation_log_loss, sensitivity, specifity)
 
 
 def evaluate_test_set(sess, 
@@ -182,10 +199,14 @@ def evaluate_solution(sample_solution, with_merged_report=True):
     log_loss_err = evaluate_log_loss(probs_cls, labels)
     acc = accuracy(probs_cls, np.array(labels))
 
-    display_confusion_matrix_info(labels, probs_cls)
+    confusion_matrix = display_confusion_matrix_info(labels, probs_cls)
+    sensitivity = get_sensitivity(confusion_matrix)
+    specifity = get_specifity(confusion_matrix)
 
     print("Log loss: ", round(log_loss_err, 5))
     print("Accuracy: %.1f%%" % acc)
+    print("Sensitivity: " % sensitivity)
+    print("Specifity: " % specifity)
 
     if with_merged_report:
         df = pd.DataFrame(data={'prediction': probs, 'label': labels},
@@ -193,6 +214,6 @@ def evaluate_solution(sample_solution, with_merged_report=True):
                           index=true_labels.index)
         df.to_csv('report_{}'.format(os.path.basename(sample_solution)))
 
-    return (log_loss_err, acc)
+    return (log_loss_err, acc, sensitivity, specifity)
 
 
