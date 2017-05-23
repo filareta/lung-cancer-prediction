@@ -17,7 +17,7 @@ import config
 # Optimal threshold, found in an article about segmentation algorithm using
 # morphological operations. This is in HU units.
 threshold = -420
-nodule_threshold = -180
+nodule_threshold = -300
  
 #TODO: compare performance of the binary_erosion, binary_closing, binary_dilation
 # operations in scipy and skimage libs

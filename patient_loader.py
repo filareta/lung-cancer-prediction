@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from random import randrange
 
 import utils
 import config
@@ -15,9 +16,13 @@ segmentation_algo = ls.get_segmentation_algorithm()
 class PatientImageLoader(object):
     def __init__(self, images_dir):
         self._images_input = images_dir or config.SEGMENTED_LUNGS_DIR
+        self._augment = False
 
     def load_scans(self, patient):
-        pass
+        if 'augm' in patient:
+            self._augment = True
+            patient = patient.split('-')[0]
+        return utils.load_patient_image(self._images_input, patient)
 
     @property
     def images_input(self):
@@ -81,15 +86,19 @@ class SegmentedLungsScansLoader(PatientImageLoader):
     def __init__(self, images_dir=config.SEGMENTED_LUNGS_DIR):
         super(SegmentedLungsScansLoader, self).__init__(images_dir)
 
-    def process_scans(self, patient):
-        image = utils.load_patient_image(self._images_input, patient)
+    def process_scans(self, image):
         image = segmentation_algo.get_slices_with_nodules(image)
         image = utils.resize(image)
+
+        if self._augment:
+            angle = randrange(-20, 20)
+            image = utils.rotate_scans(image, angle)
 
         return utils.trim_pad_slices(image, pad_with_existing=True)
 
     def load_scans(self, patient):
-        return self.process_scans(patient)
+        image = super(SegmentedLungsScansLoader, self).load_scans(patient)
+        return self.process_scans(image)
 
     @property
     def name(self):
@@ -126,7 +135,7 @@ if __name__ == '__main__':
     # loader = CroppedLungScansLoader()
     loader = SegmentedLungsScansLoader()
     for patient in os.listdir(config.SEGMENTED_LUNGS_DIR):
-        lungs = loader.process_scans('026470d51482c93efc18b9803159c960')
+        lungs = loader.load_scans('026470d51482c93efc18b9803159c960-augm')
         original = pd.get_pixels_hu(pd.load_scans('026470d51482c93efc18b9803159c960'))
         for i, lung in enumerate(lungs):
             print(i)

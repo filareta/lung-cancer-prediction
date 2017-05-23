@@ -25,6 +25,7 @@ class DataLoader(object):
                                                columns=[1]))
         self._validation_set = list(read_csv_column(
             validation_set, columns=[1]))
+        self._double_positive_class_data()
 
         self._examples_count = len(self._validation_set) + len(self._train_set)
         print("Total examples used for training and validation: ",
@@ -40,6 +41,8 @@ class DataLoader(object):
         positive = self.patients_from_class(self._train_set, 
                                             config.CANCER_CLS)
         print("Patients with cancer are: {}".format(len(positive)))
+        # Anotate that some additional noise should be added to this image
+        positive = [positive_name + '-augm' for positive_name in positive]
         self._train_set.extend(positive)
 
     def patients_from_class(self, patient_ids, clazz):
@@ -61,6 +64,8 @@ class DataLoader(object):
         return len(self._validation_set)
 
     def get_label(self, patient_id):
+        if 'augm' in patient_id:
+            patient_id = patient_id.split('-')[0]
         try:
             # [first class=no cancer=0, second class=cancer=1]
             # [1, 0]-> no cancer
