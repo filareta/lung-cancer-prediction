@@ -44,17 +44,21 @@ for bias_key, bias_var in biases.items():
 pred = conv_net(x, weights, biases, dropout)
 
 beta = 0.01
-# Define loss and optimizer
-cost = sparse_loss_with_logits(pred, y)
-# add l2 regularization on the weights on the fully connected layer
-regularizer = tf.nn.l2_loss(weights['wd1']) + tf.nn.l2_loss(weights['wd2'])
-cost = tf.reduce_mean(cost + beta * regularizer)
+
+with tf.name_scope("cross_entropy"):
+    # Define loss and optimizer
+    cost = sparse_loss_with_logits(pred, y)
+    # add l2 regularization on the weights on the fully connected layer
+    regularizer = tf.nn.l2_loss(weights['wd1']) + tf.nn.l2_loss(weights['wd2'])
+    cost = tf.reduce_mean(cost + beta * regularizer)
 
 trainable_vars = tf.trainable_variables()
-gradients = tf.gradients(cost, trainable_vars)
-gradients = list(zip(gradients, trainable_vars))
-optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate)
-train_op = optimizer.apply_gradients(grads_and_vars=gradients)
+
+with tf.name_scope("train"):
+    gradients = tf.gradients(cost, trainable_vars)
+    gradients = list(zip(gradients, trainable_vars))
+    optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate)
+    train_op = optimizer.apply_gradients(grads_and_vars=gradients)
 
 # Add gradients to summary  
 for gradient, var in gradients:
@@ -64,6 +68,7 @@ for gradient, var in gradients:
 for var in trainable_vars:
   tf.summary.histogram(var.name, var)
 
+tf.summary.scalar('cross_entropy', cost)
 
 # Predictions for the training, validation, and test data.
 train_prediction = tf.nn.softmax(pred, name='train_prediction')
@@ -77,7 +82,6 @@ tf.add_to_collection('vars', train_prediction)
 tf.add_to_collection('vars', valid_prediction)
 tf.add_to_collection('vars', test_prediction)
 
-tf.summary.scalar('cost', cost)
 
 merged = tf.summary.merge_all()
 
@@ -149,7 +153,7 @@ with tf.Session() as sess:
         print('<-===== Train log loss error {} ======->'.format(train_log_loss))
         print('<-===== Train set accuracy {} ======->'.format(train_acc_epoch))
         print('================ Train set confusion matrix ====================')
-        display_confusion_matrix_info(train_labels, train_pred)
+        confusion_matrix = display_confusion_matrix_info(train_labels, train_pred)
         train_sensitivity = get_sensitivity(confusion_matrix)
         train_specifity = get_specifity(confusion_matrix)
         print('Test data sensitivity {} and specifity {}'.format(train_sensitivity, train_specifity))
