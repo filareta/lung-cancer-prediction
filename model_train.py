@@ -111,7 +111,7 @@ best_validation_sensitivity = 0.0
 
 # Launch the graph
 with tf.Session() as sess:
-    train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train', sess.graph)
+    train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train')
     validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
     
     sess.run(init)
