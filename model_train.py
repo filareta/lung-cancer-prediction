@@ -123,19 +123,26 @@ with tf.Session() as sess:
         train_pred = []
         train_labels = []
 
-        for _ in range(training_set.num_samples):
+        for i in range(training_set.num_samples):
             batch_data, batch_labels = training_set.next_batch(batch_size)
             reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(batch_data)})
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
 
             if step % display_steps == 0:
+                run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                run_metadata = tf.RunMetadata()
                 _, loss, predictions, summary = sess.run([train_op, cost, train_prediction, merged], 
-                                                          feed_dict=feed_dict)
-                train_writer.add_summary(summary, step)
+                                                          feed_dict=feed_dict,
+                                                          options=run_options,
+                                                          run_metadata=run_metadata)
+
+                train_writer.add_run_metadata(run_metadata,  'metadata_at%d' % i, global_step=step)
+                train_writer.add_summary(summary, global_step=step)
             else:
                 _, loss, predictions = sess.run([train_op, cost, train_prediction], 
                                                  feed_dict=feed_dict)
 
+            train_writer.flush()
             train_pred.extend(predictions)
             train_labels.extend(batch_labels)
 
@@ -203,6 +210,8 @@ with tf.Session() as sess:
         validation_errors.append(validation_log_loss)
         train_errors_per_epoch.append(train_log_loss)
 
+    train_writer.flush()
+    train_writer.close()        
     saver.save(sess, model_store_path(model_out_dir, 'last'))
     print("Model saved...")
     store_error_plots(validation_errors, train_errors_per_epoch)
