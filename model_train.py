@@ -210,6 +210,13 @@ with tf.Session() as sess:
         validation_errors.append(validation_log_loss)
         train_errors_per_epoch.append(train_log_loss)
 
+    tf_train_loss = tf.constant(train_errors_per_epoch, name='train_errors')
+    train_loss_summary = tf.summary.tensor_summary('train_log_loss', tf_train_loss)
+    train_writer.add_summary(train_loss_summary.eval())
+
+    train_histogram = tf.summary.histogram('train_loss_hist', tf_train_loss)
+    train_writer.add_summary(train_histogram.eval())
+
     train_writer.close()
 
     tf_validation_loss = tf.constant(validation_errors, name='validation_errors')
