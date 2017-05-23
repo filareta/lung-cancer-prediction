@@ -205,8 +205,8 @@ def evaluate_solution(sample_solution, with_merged_report=True):
 
     print("Log loss: ", round(log_loss_err, 5))
     print("Accuracy: %.1f%%" % acc)
-    print("Sensitivity: " % sensitivity)
-    print("Specifity: " % specifity)
+    print("Sensitivity: ", round(sensitivity, 5))
+    print("Specifity: ", round(specifity, 5))
 
     if with_merged_report:
         df = pd.DataFrame(data={'prediction': probs, 'label': labels},

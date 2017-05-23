@@ -13,14 +13,15 @@ from model_utils import input_img, reshape_op
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
 from model_utils import high_error_increase, display_confusion_matrix_info
+from model_utils import get_specifity, get_sensitivity
 from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 
-training_iters = 101
-save_step = 5
+training_iters = 201
+save_step = 10
 validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
-tolerance = 5
+tolerance = 20
 
 
 # Add tensors to collection stored in the model graph
@@ -83,6 +84,7 @@ saver = tf.train.Saver()
 validation_errors = []
 train_errors_per_epoch = []
 best_validation_err = 1.0
+best_validation_sensitivity = 0.0
 
 
 # Launch the graph
@@ -113,23 +115,30 @@ with tf.Session() as sess:
 
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
         print('<-===== Train log loss error {} ======->'.format(train_log_loss))
-        print("================ Train set confusion matrix ====================")
+        print('<-===== Train set accuracy {} ======->'.format(train_acc_epoch))
+        print('================ Train set confusion matrix ====================')
         display_confusion_matrix_info(train_labels, train_pred)
+        train_sensitivity = get_sensitivity(confusion_matrix)
+        train_specifity = get_specifity(confusion_matrix)
+        print('Test data sensitivity {} and specifity {}'.format(train_sensitivity, train_specifity))
 
-        print("<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>")
-        validation_acc, validation_log_loss = evaluate_validation_set(sess, 
-                                                                      validation_set,
-                                                                      valid_prediction,
-                                                                      tf_valid_dataset,
-                                                                      batch_size)
-        
+        print('<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>')
+        validation_acc, validation_log_loss, sensitivity, specifity = evaluate_validation_set(sess, 
+                                                                                              validation_set,
+                                                                                              valid_prediction,
+                                                                                              tf_valid_dataset,
+                                                                                              batch_size)
+                                
         print('Validation accuracy: %.1f%%' % validation_acc)
-        print("<<=== LOG LOSS overall validation samples: {} ===>>.".format(
+        print('<<=== LOG LOSS overall validation samples: {} ===>>.'.format(
             validation_log_loss))
+        print('Validation set sensitivity {} and specifity {}'.format(sensitivity, specifity))
 
-        if validation_log_loss < best_validation_err:
+        if validation_log_loss < best_validation_err and sensitivity > best_validation_sensitivity:
             best_validation_err = validation_log_loss
-            print("Storing model snaphost with best validation error: ", best_validation_err)
+            best_validation_sensitivity = sensitivity
+            print("Storing model snaphost with best validation error {} and sensitivity {} ".format(
+                best_validation_err, best_validation_sensitivity))
             if step % save_step != 0:
                 saver.save(sess, model_store_path(model_out_dir, 'best_err' + str(step)))
 
