@@ -19,6 +19,7 @@ from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 training_iters = 201
 save_step = 10
+display_steps = 1
 validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
 tolerance = 20
@@ -48,7 +49,20 @@ cost = sparse_loss_with_logits(pred, y)
 # add l2 regularization on the weights on the fully connected layer
 regularizer = tf.nn.l2_loss(weights['wd1']) + tf.nn.l2_loss(weights['wd2'])
 cost = tf.reduce_mean(cost + beta * regularizer)
-optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate).minimize(cost)
+
+trainable_vars = tf.trainable_variables()
+gradients = tf.gradients(cost, trainable_vars)
+gradients = list(zip(gradients, trainable_vars))
+optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate)
+train_op = optimizer.apply_gradients(grads_and_vars=gradients)
+
+# Add gradients to summary  
+for gradient, var in gradients:
+  tf.summary.histogram(var.name + '/gradient', gradient)
+
+# Add the variables we train to the summary  
+for var in trainable_vars:
+  tf.summary.histogram(var.name, var)
 
 
 # Predictions for the training, validation, and test data.
@@ -62,6 +76,10 @@ tf.add_to_collection('vars', cost)
 tf.add_to_collection('vars', train_prediction)
 tf.add_to_collection('vars', valid_prediction)
 tf.add_to_collection('vars', test_prediction)
+
+tf.summary.scalar('cost', cost)
+
+merged = tf.summary.merge_all()
 
 # ======= Training ========
 
@@ -89,7 +107,13 @@ best_validation_sensitivity = 0.0
 
 # Launch the graph
 with tf.Session() as sess:
+    train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train', sess.graph)
+    validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
+    
     sess.run(init)
+
+    # Add the model graph to TensorBoard
+    train_writer.add_graph(sess.graph)
 
     for step in range(1, training_iters):
         train_pred = []
@@ -99,10 +123,18 @@ with tf.Session() as sess:
             batch_data, batch_labels = training_set.next_batch(batch_size)
             reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(batch_data)})
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
-            _, loss, predictions = sess.run([optimizer, cost, train_prediction], 
-                                            feed_dict=feed_dict)
+
+            if step % display_steps == 0:
+                _, loss, predictions, summary = sess.run([train_op, cost, train_prediction, merged], 
+                                                          feed_dict=feed_dict)
+                train_writer.add_summary(summary, step)
+            else:
+                _, loss, predictions = sess.run([train_op, cost, train_prediction], 
+                                                 feed_dict=feed_dict)
+
             train_pred.extend(predictions)
             train_labels.extend(batch_labels)
+
 
         if step % save_step == 0:
             print("Storing model snaphost...")
@@ -128,6 +160,7 @@ with tf.Session() as sess:
                                                                                               valid_prediction,
                                                                                               tf_valid_dataset,
                                                                                               batch_size)
+        # How to use placeholders to feed results for validation set
                                 
         print('Validation accuracy: %.1f%%' % validation_acc)
         print('<<=== LOG LOSS overall validation samples: {} ===>>.'.format(

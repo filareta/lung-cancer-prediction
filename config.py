@@ -14,6 +14,7 @@ MODELS_STORE_DIR = './models'
 SOLUTION_FILE_PATH = './solution_iter_20.csv'
 REAL_SOLUTION_CSV = './input/stage1_solution.csv'
 RESTORE_MODEL_CKPT = '/model_lungs20.ckpt'
+SUMMARIES_DIR = './summaries/watershed_with_regularization_noise'
 
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'
