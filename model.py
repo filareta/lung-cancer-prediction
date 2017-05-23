@@ -9,8 +9,8 @@ def conv3d(x, W, b, name, strides=[1, 1, 1, 1, 1], padding='SAME'):
     with tf.variable_scope(name) as scope:
         # Conv3D wrapper, with bias and relu activation
         x = tf.nn.conv3d(x, W, strides=strides, padding=padding, name=scope.name)
-        x = tf.nn.bias_add(x, b, name=scope.name)
-        return tf.nn.relu(x, name=scope.name)
+        x = tf.nn.bias_add(x, b, name='bias')
+        return tf.nn.relu(x, name='relu')
 
 
 def maxpool3d(x, name, k, strides=[1, 1, 1, 1, 1], padding='SAME'):
@@ -22,7 +22,7 @@ def fc(x, weights, bias, name, dropout=None, with_relu=True):
     with tf.variable_scope(name) as scope:
         fc = tf.add(tf.matmul(x, weights), bias, name=scope.name)
         if with_relu:
-            fc = tf.nn.relu(fc, name=scope.name)
+            fc = tf.nn.relu(fc, name='relu')
         if dropout:
             fc = tf.nn.dropout(fc, dropout)
 

@@ -19,7 +19,7 @@ from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 training_iters = 201
 save_step = 10
-display_steps = 1
+display_steps = 10
 validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
 tolerance = 20
@@ -136,8 +136,8 @@ with tf.Session() as sess:
                                                           options=run_options,
                                                           run_metadata=run_metadata)
 
-                train_writer.add_run_metadata(run_metadata,  'metadata_at%d' % i, global_step=step)
-                train_writer.add_summary(summary, global_step=step)
+                train_writer.add_run_metadata(run_metadata,  'metadata_at%d' % i, global_step=step + i)
+                train_writer.add_summary(summary, step + i)
             else:
                 _, loss, predictions = sess.run([train_op, cost, train_prediction], 
                                                  feed_dict=feed_dict)
@@ -210,8 +210,17 @@ with tf.Session() as sess:
         validation_errors.append(validation_log_loss)
         train_errors_per_epoch.append(train_log_loss)
 
-    train_writer.flush()
-    train_writer.close()        
+    train_writer.close()
+
+    tf_validation_loss = tf.constant(validation_errors, name='validation_errors')
+    validation_loss_summary = tf.summary.tensor_summary('validation_log_loss', tf_validation_loss)
+    validation_writer.add_summary(validation_loss_summary.eval())
+
+    validation_histogram = tf.summary.histogram('validation_loss_hist', tf_validation_loss)
+    validation_writer.add_summary(validation_histogram.eval())
+
+    validation_writer.close()
+
     saver.save(sess, model_store_path(model_out_dir, 'last'))
     print("Model saved...")
     store_error_plots(validation_errors, train_errors_per_epoch)
