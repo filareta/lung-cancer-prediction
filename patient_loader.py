@@ -91,7 +91,7 @@ class SegmentedLungsScansLoader(PatientImageLoader):
         image = utils.resize(image)
 
         if self._augment:
-            angle = randrange(-20, 20)
+            angle = randrange(-15, 15)
             image = utils.rotate_scans(image, angle)
 
         return utils.trim_pad_slices(image, pad_with_existing=True)
@@ -102,7 +102,7 @@ class SegmentedLungsScansLoader(PatientImageLoader):
 
     @property
     def name(self):
-        return 'segmented_lungs_loader_more_slices'
+        return 'segmented_lungs_loader_more_slices_augmentation'
 
 
 class CroppedLungScansLoader(PatientImageLoader):

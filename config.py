@@ -11,7 +11,7 @@ VALIDATION_PATINETS_IDS = LABELS_INPUT_DIR + '/validation_data.csv'
 TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 
 MODELS_STORE_DIR = './models'
-SOLUTION_FILE_PATH = './solution_iter_20.csv'
+SOLUTION_FILE_PATH = './solution_last.csv'
 REAL_SOLUTION_CSV = './input/stage1_solution.csv'
 RESTORE_MODEL_CKPT = '/model_lungs20.ckpt'
 SUMMARIES_DIR = './summaries/watershed_with_regularization_noise'

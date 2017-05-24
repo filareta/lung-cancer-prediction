@@ -17,12 +17,12 @@ from model_utils import get_specifity, get_sensitivity
 from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
 
 
-training_iters = 201
+training_iters = 101
 save_step = 10
-display_steps = 10
+display_steps = 20
 validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
-tolerance = 20
+tolerance = 15
 
 
 # Add tensors to collection stored in the model graph
@@ -68,7 +68,6 @@ for gradient, var in gradients:
 for var in trainable_vars:
   tf.summary.histogram(var.name, var)
 
-tf.summary.scalar('cross_entropy', cost)
 
 # Predictions for the training, validation, and test data.
 train_prediction = tf.nn.softmax(pred, name='train_prediction')
@@ -108,6 +107,38 @@ train_errors_per_epoch = []
 best_validation_err = 1.0
 best_validation_sensitivity = 0.0
 
+# Add summary for log loss per epoch, accuracy and sensitivity
+with tf.name_scope("log_loss"):
+    log_loss = tf.placeholder(tf.float32, name="log_loss_per_epoch")
+    
+loss_summary = tf.summary.scalar("log_loss", log_loss)
+
+with tf.name_scope("sensitivity"):
+    sensitivity = tf.placeholder(tf.float32, name="sensitivity_per_epoch")
+
+sensitivity_summary = tf.summary.scalar("sensitivity", sensitivity)
+
+with tf.name_scope("accuracy"):
+    accuracy = tf.placeholder(tf.float32, name="accuracy_per_epoch")
+
+accuracy_summary = tf.summary.scalar("accuracy", accuracy)
+
+
+def export_evaluation_summary(log_loss_value, 
+                              accuracy_value, 
+                              sensitivity_value, 
+                              step,
+                              sess,
+                              writer):
+    error_summary, acc_summary, sens_summary = sess.run(
+        [loss_summary, accuracy_summary, sensitivity_summary],
+        feed_dict={log_loss: log_loss_value, accuracy: accuracy_value, 
+                   sensitivity: sensitivity_value})
+    writer.add_summary(error_summary, global_step=step)
+    writer.add_summary(acc_summary, global_step=step)
+    writer.add_summary(sens_summary, global_step=step)
+    writer.flush()
+
 
 # Launch the graph
 with tf.Session() as sess:
@@ -136,16 +167,20 @@ with tf.Session() as sess:
                                                           options=run_options,
                                                           run_metadata=run_metadata)
 
-                train_writer.add_run_metadata(run_metadata,  'metadata_at%d' % i, global_step=step + i)
-                train_writer.add_summary(summary, step + i)
+                try:
+                    train_writer.add_run_metadata(run_metadata, 
+                        'metadata_at%d' % (step + i), global_step=step + i)
+                    train_writer.add_summary(summary, step + i)
+                except Exception as e:
+                    print("Exeption raised during summary export. ", e)
             else:
                 _, loss, predictions = sess.run([train_op, cost, train_prediction], 
                                                  feed_dict=feed_dict)
 
-            train_writer.flush()
             train_pred.extend(predictions)
             train_labels.extend(batch_labels)
 
+        train_writer.flush()
 
         if step % save_step == 0:
             print("Storing model snaphost...")
@@ -157,6 +192,7 @@ with tf.Session() as sess:
         train_acc_epoch = accuracy(np.stack(train_pred), np.stack(train_labels))
 
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
+    
         print('<-===== Train log loss error {} ======->'.format(train_log_loss))
         print('<-===== Train set accuracy {} ======->'.format(train_acc_epoch))
         print('================ Train set confusion matrix ====================')
@@ -165,22 +201,30 @@ with tf.Session() as sess:
         train_specifity = get_specifity(confusion_matrix)
         print('Test data sensitivity {} and specifity {}'.format(train_sensitivity, train_specifity))
 
+        export_evaluation_summary(train_log_loss, 
+                                  train_acc_epoch, 
+                                  train_sensitivity, 
+                                  step, sess, train_writer)
+
         print('<<<<<<<<<<Evaluate validation set>>>>>>>>>>>>>>>>')
-        validation_acc, validation_log_loss, sensitivity, specifity = evaluate_validation_set(sess, 
-                                                                                              validation_set,
-                                                                                              valid_prediction,
-                                                                                              tf_valid_dataset,
-                                                                                              batch_size)
-        # How to use placeholders to feed results for validation set
-                                
+        validation_acc, validation_log_loss, val_sensitivity, val_specifity = evaluate_validation_set(sess, 
+                                                                                                      validation_set,
+                                                                                                      valid_prediction,
+                                                                                                      tf_valid_dataset,
+                                                                                                      batch_size)
+        export_evaluation_summary(validation_log_loss, 
+                                  validation_acc, 
+                                  val_sensitivity, 
+                                  step, sess, validation_writer)
+
         print('Validation accuracy: %.1f%%' % validation_acc)
         print('<<=== LOG LOSS overall validation samples: {} ===>>.'.format(
             validation_log_loss))
-        print('Validation set sensitivity {} and specifity {}'.format(sensitivity, specifity))
+        print('Validation set sensitivity {} and specifity {}'.format(val_sensitivity, val_specifity))
 
-        if validation_log_loss < best_validation_err and sensitivity > best_validation_sensitivity:
+        if validation_log_loss < best_validation_err and val_sensitivity > best_validation_sensitivity:
             best_validation_err = validation_log_loss
-            best_validation_sensitivity = sensitivity
+            best_validation_sensitivity = val_sensitivity
             print("Storing model snaphost with best validation error {} and sensitivity {} ".format(
                 best_validation_err, best_validation_sensitivity))
             if step % save_step != 0:
@@ -210,22 +254,7 @@ with tf.Session() as sess:
         validation_errors.append(validation_log_loss)
         train_errors_per_epoch.append(train_log_loss)
 
-    tf_train_loss = tf.constant(train_errors_per_epoch, name='train_errors')
-    train_loss_summary = tf.summary.tensor_summary('train_log_loss', tf_train_loss)
-    train_writer.add_summary(train_loss_summary.eval())
-
-    train_histogram = tf.summary.histogram('train_loss_hist', tf_train_loss)
-    train_writer.add_summary(train_histogram.eval())
-
     train_writer.close()
-
-    tf_validation_loss = tf.constant(validation_errors, name='validation_errors')
-    validation_loss_summary = tf.summary.tensor_summary('validation_log_loss', tf_validation_loss)
-    validation_writer.add_summary(validation_loss_summary.eval())
-
-    validation_histogram = tf.summary.histogram('validation_loss_hist', tf_validation_loss)
-    validation_writer.add_summary(validation_histogram.eval())
-
     validation_writer.close()
 
     saver.save(sess, model_store_path(model_out_dir, 'last'))

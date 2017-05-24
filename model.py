@@ -73,8 +73,7 @@ def conv_net(x, weights, biases, dropout):
     # Reshape conv output to fit fully connected layer input
     number = conv_shape[0] or -1
     fc1 = tf.reshape(conv4, [number, fully_con_input_size])
-    fc1 = fc(fc1, weights['wd1'], biases['bd1'], name='first_fully_connected', 
-        dropout=dropout)
+    fc1 = fc(fc1, weights['wd1'], biases['bd1'], name='first_fully_connected')
 
     fc2 = fc(fc1, weights['wd2'], biases['bd2'], name='second_fully_connected', 
         dropout=dropout)
