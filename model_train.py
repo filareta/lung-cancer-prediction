@@ -119,9 +119,9 @@ with tf.name_scope("sensitivity"):
 sensitivity_summary = tf.summary.scalar("sensitivity", sensitivity)
 
 with tf.name_scope("accuracy"):
-    accuracy = tf.placeholder(tf.float32, name="accuracy_per_epoch")
+    tf_accuracy = tf.placeholder(tf.float32, name="accuracy_per_epoch")
 
-accuracy_summary = tf.summary.scalar("accuracy", accuracy)
+accuracy_summary = tf.summary.scalar("accuracy", tf_accuracy)
 
 
 def export_evaluation_summary(log_loss_value, 
@@ -132,7 +132,7 @@ def export_evaluation_summary(log_loss_value,
                               writer):
     error_summary, acc_summary, sens_summary = sess.run(
         [loss_summary, accuracy_summary, sensitivity_summary],
-        feed_dict={log_loss: log_loss_value, accuracy: accuracy_value, 
+        feed_dict={log_loss: log_loss_value, tf_accuracy: accuracy_value, 
                    sensitivity: sensitivity_value})
     writer.add_summary(error_summary, global_step=step)
     writer.add_summary(acc_summary, global_step=step)
