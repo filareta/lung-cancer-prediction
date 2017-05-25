@@ -144,8 +144,12 @@ def export_evaluation_summary(log_loss_value,
 with tf.Session() as sess:
     train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train')
     validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
-    
+
     sess.run(init)
+
+    if config.RESTORE:
+        print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
+        saver.restore(sess, model_out_dir + config.RESTORE_MODEL_CKPT)
 
     # Add the model graph to TensorBoard
     train_writer.add_graph(sess.graph)

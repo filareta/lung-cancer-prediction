@@ -13,8 +13,9 @@ TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 MODELS_STORE_DIR = './models'
 SOLUTION_FILE_PATH = './solution_last.csv'
 REAL_SOLUTION_CSV = './input/stage1_solution.csv'
-RESTORE_MODEL_CKPT = '/model_lungs20.ckpt'
+RESTORE_MODEL_CKPT = '/model_best_err14.ckpt'
 SUMMARIES_DIR = './summaries/watershed_with_regularization_noise'
+RESTORE = True
 
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'
