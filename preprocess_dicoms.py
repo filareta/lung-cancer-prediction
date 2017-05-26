@@ -9,13 +9,15 @@ import scipy.ndimage as spi
 import lung_segmentation as ls
 
 import config
-from utils import store_patient_image
+from utils import store_patient_image, load_patient_image
+from utils import trim_pad_slices, resize
 
 
 NUM_PROCESSES = multiprocessing.cpu_count()
 
 
 segmentation_algo = ls.get_segmentation_algorithm()
+SECOND_PREPROCESS = 'D:/Fil/watershed_only_with_nodules'
 
 
 def load_scans(patient):
@@ -103,13 +105,18 @@ def process_patients_chunk(patients):
     """
     for patient in patients:
         try:
-            scans = load_scans(patient)
-            patient_imgs = get_pixels_hu(scans)
+            # scans = load_scans(patient)
+            # patient_imgs = get_pixels_hu(scans)
 
-            segmented_lungs = np.stack([segmentation_algo.get_segmented_lungs(image)
-                                        for image in patient_imgs])
-            
-            store_patient_image(config.SEGMENTED_LUNGS_DIR, segmented_lungs, patient)
+            # segmented_lungs = np.stack([segmentation_algo.get_segmented_lungs(image)
+            #                             for image in patient_imgs])
+            image = load_patient_image(config.SEGMENTED_LUNGS_DIR, patient)
+            image = segmentation_algo.get_slices_with_nodules(image)
+            image = resize(image)
+
+            image = trim_pad_slices(image, pad_with_existing=True)
+
+            store_patient_image(SECOND_PREPROCESS, image, patient)
             print("====== Store patient {} image ======.".format(patient))
         except Exception as e:
             print("An error occured while processing {}! {}".format(patient, e))
@@ -145,4 +152,4 @@ def process_dicom_set(input_dir):
 
 
 if __name__ == '__main__':
-    process_dicom_set(config.ALL_IMGS)
+    process_dicom_set(config.SEGMENTED_LUNGS_DIR)
