@@ -145,16 +145,17 @@ with tf.Session() as sess:
     train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train')
     validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
 
-    sess.run(init)
-
     if config.RESTORE:
         print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
         saver.restore(sess, model_out_dir + config.RESTORE_MODEL_CKPT)
+    
+    sess.run(init)
 
     # Add the model graph to TensorBoard
-    train_writer.add_graph(sess.graph)
+    if not config.RESTORE:
+        train_writer.add_graph(sess.graph)
 
-    for step in range(1, training_iters):
+    for step in range(config.START_STEP, training_iters):
         train_pred = []
         train_labels = []
 
@@ -164,16 +165,10 @@ with tf.Session() as sess:
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
 
             if step % display_steps == 0:
-                run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-                run_metadata = tf.RunMetadata()
                 _, loss, predictions, summary = sess.run([train_op, cost, train_prediction, merged], 
-                                                          feed_dict=feed_dict,
-                                                          options=run_options,
-                                                          run_metadata=run_metadata)
+                                                          feed_dict=feed_dict)
 
                 try:
-                    train_writer.add_run_metadata(run_metadata, 
-                        'metadata_at%d' % (step + i), global_step=step + i)
                     train_writer.add_summary(summary, step + i)
                 except Exception as e:
                     print("Exeption raised during summary export. ", e)

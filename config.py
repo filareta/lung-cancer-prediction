@@ -16,6 +16,7 @@ REAL_SOLUTION_CSV = './input/stage1_solution.csv'
 RESTORE_MODEL_CKPT = '/model_best_err14.ckpt'
 SUMMARIES_DIR = './summaries/watershed_with_regularization_noise'
 RESTORE = True
+START_STEP = 1
 
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'
