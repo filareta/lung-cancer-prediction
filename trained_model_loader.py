@@ -21,8 +21,8 @@ print(out_dir)
 saver = tf.train.Saver()
 
 with tf.Session() as sess:
-    saver.restore(sess, out_dir + config.RESTORE_MODEL_CKPT)
     sess.run(tf.global_variables_initializer())
+    saver.restore(sess, out_dir + config.RESTORE_MODEL_CKPT)
 
     evaluate_test_set(sess, 
                       test_set,

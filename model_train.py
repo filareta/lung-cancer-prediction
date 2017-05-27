@@ -22,16 +22,18 @@ save_step = 10
 display_steps = 20
 validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
-tolerance = 25
+tolerance = 20
 
 
-# Add tensors to collection stored in the model graph
-# definition
-tf.add_to_collection('vars', x)
-tf.add_to_collection('vars', y)
-tf.add_to_collection('vars', keep_prob)
-tf.add_to_collection('vars', tf_valid_dataset)
-tf.add_to_collection('vars', tf_test_dataset)
+
+if not config.RESTORE:
+    # Add tensors to collection stored in the model graph
+    # definition
+    tf.add_to_collection('vars', x)
+    tf.add_to_collection('vars', y)
+    tf.add_to_collection('vars', keep_prob)
+    tf.add_to_collection('vars', tf_valid_dataset)
+    tf.add_to_collection('vars', tf_test_dataset)
 
 for weight_key, weigth_var in weights.items():
     tf.add_to_collection('vars', weigth_var)
@@ -76,10 +78,11 @@ valid_prediction = tf.nn.softmax(conv_net(tf_valid_dataset, weights, biases, 1.0
 test_prediction = tf.nn.softmax(conv_net(tf_test_dataset, weights, biases, 1.0), 
     name='test_prediction')
 
-tf.add_to_collection('vars', cost)
-tf.add_to_collection('vars', train_prediction)
-tf.add_to_collection('vars', valid_prediction)
-tf.add_to_collection('vars', test_prediction)
+if not config.RESTORE:
+    tf.add_to_collection('vars', cost)
+    tf.add_to_collection('vars', train_prediction)
+    tf.add_to_collection('vars', valid_prediction)
+    tf.add_to_collection('vars', test_prediction)
 
 
 merged = tf.summary.merge_all()
@@ -146,7 +149,7 @@ with tf.Session() as sess:
     validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
 
     sess.run(init)
-    
+
     if config.RESTORE:
         print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
         saver.restore(sess, model_out_dir + config.RESTORE_MODEL_CKPT)
