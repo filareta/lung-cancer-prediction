@@ -87,14 +87,16 @@ class SegmentedLungsScansLoader(PatientImageLoader):
         super(SegmentedLungsScansLoader, self).__init__(images_dir)
 
     def process_scans(self, image):
-        image = segmentation_algo.get_slices_with_nodules(image)
-        image = utils.resize(image)
+        # image = segmentation_algo.get_slices_with_nodules(image)
+        # image = utils.resize(image)
 
         if self._augment:
             angle = randrange(-15, 15)
             image = utils.rotate_scans(image, angle)
 
-        return utils.trim_pad_slices(image, pad_with_existing=True)
+        return image
+
+        # return utils.trim_pad_slices(image, pad_with_existing=True)
 
     def load_scans(self, patient):
         image = super(SegmentedLungsScansLoader, self).load_scans(patient)
@@ -102,7 +104,7 @@ class SegmentedLungsScansLoader(PatientImageLoader):
 
     @property
     def name(self):
-        return 'segmented_lungs_loader_more_slices_augmentation'
+        return 'segmented_lungs_loader_with_augmentation2'
 
 
 class CroppedLungScansLoader(PatientImageLoader):

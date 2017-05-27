@@ -22,7 +22,7 @@ save_step = 10
 display_steps = 20
 validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
-tolerance = 15
+tolerance = 25
 
 
 # Add tensors to collection stored in the model graph
@@ -145,11 +145,12 @@ with tf.Session() as sess:
     train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train')
     validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
 
+    sess.run(init)
+    
     if config.RESTORE:
         print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
         saver.restore(sess, model_out_dir + config.RESTORE_MODEL_CKPT)
     
-    sess.run(init)
 
     # Add the model graph to TensorBoard
     if not config.RESTORE:
