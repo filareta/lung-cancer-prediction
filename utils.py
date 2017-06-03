@@ -103,7 +103,8 @@ def trim_pad_slices(scans, pad_with_existing=True,
 
             del scans
             scans = new_scans
-
+            pad = config.SLICES - len(scans)
+    
         if pad_with_existing:
             padding = []
             for slice_chunk in np.array_split(scans, pad):
