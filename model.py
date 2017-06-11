@@ -39,7 +39,7 @@ class Convolution3DNetwork(object):
             ]
 
     def weights(self):
-        self._conv_weights + self._weights
+        return self._conv_weights + self._weights
 
     def l2_regularizer(self):
         if self._config.with_l2_norm():

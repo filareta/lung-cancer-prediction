@@ -12,7 +12,7 @@ from utils import store_to_csv, read_csv
 n_x = config.IMAGE_PXL_SIZE_X
 n_y = config.IMAGE_PXL_SIZE_Y
 n_z = config.SLICES
-num_channels = 1
+num_channels = config.NUM_CHANNELS
 
 # tf Graph input
 x = tf.placeholder(tf.float32, shape=(config.BATCH_SIZE, n_z, n_x, n_y, num_channels), 
@@ -109,18 +109,14 @@ def calculate_conv_output_size(x, y, z, strides, filters, paddings, last_depth):
     # Currently axes are transposed [z, x, y]
     for i, stride in enumerate(strides):
         if paddings[i] == 'VALID':
-            print("VALID padding")
             f = filters[i]
             x = np.ceil(np.float((x - f[1] + 1) / float(stride[1])))
             y = np.ceil(np.float((y - f[2] + 1) / float(stride[2])))
             z = np.ceil(np.float((z - f[0] + 1) / float(stride[0])))
-            print("Calculating X: {}, Y: {}, Z: {}.".format(x, y, z))
         else:
-            print("SAME padding")
             x = np.ceil(float(x) / float(stride[1]))
             y = np.ceil(float(y) / float(stride[2]))
             z = np.ceil(float(z) / float(stride[0]))
-    print("Final X: {}, Y: {}, Z: {}.".format(x, y, z))
 
     return int(x * y * z * last_depth)
 
