@@ -2,20 +2,19 @@ import os
 import numpy as np
 import random as rnd
 
-import patient_loader as pl
 import config
 from utils import read_csv_column, read_csv
 
 
 class DataLoader(object):
     def __init__(self, 
-                 images_loader=None,
+                 images_loader,
                  labels_input=config.PATIENT_LABELS_CSV,
                  exact_tests=config.TEST_PATIENTS_IDS,
                  train_set=config.TRAINING_PATIENTS_IDS,
                  validation_set=config.VALIDATION_PATINETS_IDS,
                  add_transformed_positives=False):
-        self._images_loader = images_loader or pl.SegmentedLungsScansLoader()
+        self._images_loader = images_loader
         self._labels = read_csv(labels_input)
 
         self._exact_tests = []

@@ -1,15 +1,13 @@
 import tensorflow as tf
 from functools import reduce
 
-from model_configuration import DefaultConfig
-
 
 class Convolution3DNetwork(object):
     DEFAULT_LAYER_PADDING = 'VALID'
     DEFAULT_CONV_STRIDE = [1, 1, 1, 1, 1]
 
-    def __init__(self, config=None):
-        self._config = config or DefaultConfig()
+    def __init__(self, config):
+        self._config = config
         self._strides = self._config.get_strides()
         self._pool_strides = self._config.get_pool_strides()
         self._pool_windows = self._config.get_pool_windows()

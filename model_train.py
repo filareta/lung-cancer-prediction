@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 import tensorflow as tf
-import data_set as ds
 import config
 
 from model_utils import x, y, keep_prob
@@ -13,7 +12,9 @@ from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
 from model_utils import high_error_increase, display_confusion_matrix_info
 from model_utils import get_specifity, get_sensitivity
-from model import Convolution3DNetwork, loss_function_with_logits, sparse_loss_with_logits
+from model import loss_function_with_logits, sparse_loss_with_logits
+from model_factory import ModelFactory
+
 
 # Parameters used during training
 batch_size = config.BATCH_SIZE
@@ -28,7 +29,8 @@ dropout = 0.5 # Dropout, probability to keep units
 beta = 0.01
 
 # Construct model
-model = Convolution3DNetwork()
+factory = ModelFactory()
+model = factory.get_network_model()
 
 if not config.RESTORE:
     # Add tensors to collection stored in the model graph
@@ -54,7 +56,9 @@ with tf.name_scope("cross_entropy"):
     # add l2 regularization on the weights on the fully connected layer
     # if term != 0 is returned
     regularizer = model.l2_regularizer()
-    cost = tf.reduce_mean(cost + beta * regularizer)
+    if regularizer != 0:
+        print("Adding L2 regularization...")
+        cost = tf.reduce_mean(cost + beta * regularizer)
 
 trainable_vars = tf.trainable_variables()
 
@@ -66,11 +70,11 @@ with tf.name_scope("train"):
 
 # Add gradients to summary  
 for gradient, var in gradients:
-  tf.summary.histogram(var.name + '/gradient', gradient)
+    tf.summary.histogram(var.name + '/gradient', gradient)
 
 # Add the variables we train to the summary  
 for var in trainable_vars:
-  tf.summary.histogram(var.name, var)
+    tf.summary.histogram(var.name, var)
 
 # Predictions for the training, validation, and test data.
 train_prediction = tf.nn.softmax(pred, name='train_prediction')
@@ -89,8 +93,7 @@ if not config.RESTORE:
 merged = tf.summary.merge_all()
 
 # ======= Training ========
-
-data_loader = ds.DataLoader()
+data_loader = factory.get_data_loader()
 training_set = data_loader.get_training_set()
 validation_set = data_loader.get_validation_set()
 exact_tests = data_loader.get_exact_tests_set()

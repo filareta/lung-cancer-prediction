@@ -35,16 +35,37 @@ class PatientImageLoader(object):
 # Tests with the mean scans loader are not using
 # lung segmentation, only compressed sorted slices in HU units.
 class MeanScansLoader(PatientImageLoader):
-    def __init__(self, images_dir):
+    def __init__(self, images_dir=None):
         super(MeanScansLoader, self).__init__(images_dir)
 
     def load_scans(self, patient):
         image = utils.load_patient_image(self._images_input, patient)
+        image = utils.resize(image)
+
         return utils.get_mean_chunk_slices(image)
 
     @property
     def name(self):
         return 'mean_scans_loader'
+
+
+class SegmentedGaussianLungsLoader(PatientImageLoader):
+    def __init__(self, images_dir=config.SEGMENTED_LUNGS_DIR):
+        super(SegmentedGaussianLungsLoader, self).__init__(images_dir)
+
+    def process_scans(self, image):
+        image = np.stack([cv2.GaussianBlur(scan, (5, 5), 0) for scan in image])
+        image = utils.resize(image)
+
+        return utils.trim_pad_slices(image, pad_with_existing=False)
+
+    def load_scans(self, patient):
+        image = utils.load_patient_image(self._images_input, patient)
+        return self.process_scans(image)
+
+    @property
+    def name(self):
+        return 'segmented_gaussian_lungs_loader'
 
 
 # Default loader
