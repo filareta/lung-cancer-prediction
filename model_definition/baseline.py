@@ -25,8 +25,7 @@ filters = [[3, 5, 5],
             
 padding_types = ['VALID'] * 6
 
-# Default network config used with more slices
-# and larger convololution stride on first layer
+
 baseline_config = {
     'weights': [
         # Convolution layers
