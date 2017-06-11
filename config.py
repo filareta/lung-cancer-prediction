@@ -28,27 +28,62 @@ OUT_SCAN = -2000
 MIN_BOUND = -1000.0
 MAX_BOUND = 400.0
 
-
 BACKGROUND = 0
 BATCH_SIZE = 1
 NUM_CHANNELS = 1
 N_CLASSES = 2
 
-WATERSHED = 2
+
+# Preprocessing options used for the defined models
+BASELINE_PREPROCESS = 0
 MORPHOLOGICAL_OPERATIONS = 1
+WATERSHED = 2
+
+# TODO: Change paths accordingly after adding download scripts
+preprocessed_imgs = {
+    BASELINE_PREPROCESS: 'D:/Fil/baseline_preprocessing',
+    MORPHOLOGICAL_OPERATIONS: '../kaggle-data/segmented_morph_op',
+    WATERSHED: 'D:/Fil/segmented_watershed'
+}
+
+# Defined models
+BASELINE = 'baseline'
+BASELINE_ADDITIONAL_LAYERS = 'baseline_add_layers'
+NO_REGULARIZATION = 'no_regularization'
+DROPOUT_L2NORM_REGULARIZARION = 'with_regularization'
+REGULARIZATION_MORE_SLICES = 'regularization_more_slices'
+WITH_DATA_AUGMENTATION = 'more_slices_augmentation'
 
 
-# Input parameters might be able to change those
-IMAGE_PXL_SIZE_X = 256
-IMAGE_PXL_SIZE_Y = 256
-SLICES = 180
+model_to_img_shape = { 
+    BASELINE: (100, 128, 128),
+    BASELINE_ADDITIONAL_LAYERS: (100, 128, 128),
+    NO_REGULARIZATION: (140, 256, 256),
+    DROPOUT_L2NORM_REGULARIZARION: (140, 256, 256),
+    REGULARIZATION_MORE_SLICES: (180, 256, 256),
+    WITH_DATA_AUGMENTATION: (180, 256, 256)
+}
 
-SEGMENTED_LUNGS_DIR = 'D:/Fil/segmented_watershed'
+model_to_preprocessing = {
+    BASELINE: BASELINE_PREPROCESS,
+    BASELINE_ADDITIONAL_LAYERS: BASELINE_PREPROCESS,
+    NO_REGULARIZATION: MORPHOLOGICAL_OPERATIONS,
+    DROPOUT_L2NORM_REGULARIZARION: WATERSHED,
+    REGULARIZATION_MORE_SLICES: WATERSHED,
+    WITH_DATA_AUGMENTATION: WATERSHED
+}
+
+# This configuration must be changed in order to select other
+# predefined model for training
+SELECTED_MODEL = WITH_DATA_AUGMENTATION
+
+IMG_SHAPE = model_to_img_shape[SELECTED_MODEL]
+
+SLICES, IMAGE_PXL_SIZE_X, IMAGE_PXL_SIZE_Y = IMG_SHAPE
+
+SEGMENTATION_ALGO = model_to_preprocessing[SELECTED_MODEL]
+SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
 
 
 
-IMG_SHAPE = (SLICES, IMAGE_PXL_SIZE_X, 
-             IMAGE_PXL_SIZE_Y)
 
-
-SEGMENTATION_ALGO = WATERSHED
