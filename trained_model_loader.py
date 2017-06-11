@@ -4,12 +4,15 @@ import data_set as ds
 from utils import store_to_csv
 import config
 
-from model_definition import weights, biases, tf_test_dataset
+from model_definition import tf_test_dataset
 from model_utils import evaluate_test_set
-from model import conv_net
+from model import Convolution3DNetwork
 
 
-test_prediction = tf.nn.softmax(conv_net(tf_test_dataset, weights, biases, 1.0), 
+# Construct model
+model = Convolution3DNetwork()
+
+test_prediction = tf.nn.softmax(model.conv_net(tf_test_dataset, 1.0), 
     name='test_prediction')
 
 data_loader = ds.DataLoader()

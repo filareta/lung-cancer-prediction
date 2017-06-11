@@ -7,14 +7,14 @@ import config
 
 from model_definition import x, y, keep_prob, learning_rate, batch_size
 from model_definition import tf_valid_dataset, tf_test_dataset
-from model_definition import weights, biases, dropout
+from model_definition import dropout
 from model_utils import input_img, reshape_op
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
 from model_utils import high_error_increase, display_confusion_matrix_info
 from model_utils import get_specifity, get_sensitivity
-from model import conv_net, loss_function_with_logits, sparse_loss_with_logits
+from model import Convolution3DNetwork, loss_function_with_logits, sparse_loss_with_logits
 
 
 training_iters = 101
@@ -24,7 +24,10 @@ validaton_logg_loss_incr_threshold = 0.05
 last_errors = 2
 tolerance = 20
 
+beta = 0.01
 
+# Construct model
+model = Convolution3DNetwork()
 
 if not config.RESTORE:
     # Add tensors to collection stored in the model graph
@@ -35,23 +38,21 @@ if not config.RESTORE:
     tf.add_to_collection('vars', tf_valid_dataset)
     tf.add_to_collection('vars', tf_test_dataset)
 
-for weight_key, weigth_var in weights.items():
-    tf.add_to_collection('vars', weigth_var)
+    for weigth_var in model.weights():
+        tf.add_to_collection('vars', weigth_var)
 
-for bias_key, bias_var in biases.items():
-    tf.add_to_collection('vars', bias_var)
+    for bias_var in model.biases():
+        tf.add_to_collection('vars', bias_var)
 
-
-# Construct model
-pred = conv_net(x, weights, biases, dropout)
-
-beta = 0.01
+pred = model.conv_net(x, dropout)
 
 with tf.name_scope("cross_entropy"):
     # Define loss and optimizer
     cost = sparse_loss_with_logits(pred, y)
+    
     # add l2 regularization on the weights on the fully connected layer
-    regularizer = tf.nn.l2_loss(weights['wd1']) + tf.nn.l2_loss(weights['wd2'])
+    # if term != 0 is returned
+    regularizer = model.l2_regularizer()
     cost = tf.reduce_mean(cost + beta * regularizer)
 
 trainable_vars = tf.trainable_variables()
@@ -70,12 +71,11 @@ for gradient, var in gradients:
 for var in trainable_vars:
   tf.summary.histogram(var.name, var)
 
-
 # Predictions for the training, validation, and test data.
 train_prediction = tf.nn.softmax(pred, name='train_prediction')
-valid_prediction = tf.nn.softmax(conv_net(tf_valid_dataset, weights, biases, 1.0), 
+valid_prediction = tf.nn.softmax(model.conv_net(tf_valid_dataset, 1.0), 
     name='valid_prediction')
-test_prediction = tf.nn.softmax(conv_net(tf_test_dataset, weights, biases, 1.0), 
+test_prediction = tf.nn.softmax(model.conv_net(tf_test_dataset, 1.0), 
     name='test_prediction')
 
 if not config.RESTORE:

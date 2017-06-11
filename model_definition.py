@@ -72,8 +72,7 @@ filters = [[first_kernel_size_z, first_kernel_size_x, first_kernel_size_y],
             [kernel_size, kernel_size, kernel_size],
             [kernel_size, kernel_size, kernel_size],
             [pool_window, pool_window, pool_window]]
-padding_types = ['VALID', 'VALID', 'VALID', 
-                'VALID', 'VALID', 'VALID', 'VALID']
+padding_types = ['VALID'] * 7
 
 new_x, new_y, new_z = calculate_conv_output_size(n_x, n_y, n_z, 
                                                  strides, 
@@ -81,46 +80,52 @@ new_x, new_y, new_z = calculate_conv_output_size(n_x, n_y, n_z,
                                                  padding_types)
 
 out_conv_size = int(new_x * new_y * new_z * last_depth)
-print("Last conv net output size should be: ", out_conv_size)
 
-
-# Store layers weight & bias
-weights = {
-    # Convolution layers
-    'wc1': tf.Variable(tf.truncated_normal([first_kernel_size_z, first_kernel_size_x, first_kernel_size_y, num_channels, depth], 
+# Default network config used with more slices
+# and larger convololution stride on first layer
+default_config = {
+    'weights': [
+        # Convolution layers
+        tf.Variable(tf.truncated_normal([first_kernel_size_z, first_kernel_size_x, first_kernel_size_y, num_channels, depth], 
         stddev=0.01), name='wc1'),
-    'wc2': tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, depth, second_depth], 
+        tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, depth, second_depth], 
         stddev=0.01), name='wc2'),
-    'wc3': tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, second_depth, third_depth], 
+        tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, second_depth, third_depth], 
         stddev=0.01), name='wc3'),
-    'wc4': tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, third_depth, last_depth], 
+        tf.Variable(tf.truncated_normal([kernel_size, kernel_size, kernel_size, third_depth, last_depth], 
         stddev=0.01), name='wc4'),
-    # Fully connected layers
-    'wd1': tf.Variable(tf.truncated_normal([out_conv_size, hidden], stddev=0.01), name='wd1'),
-    'wd2': tf.Variable(tf.truncated_normal([hidden, second_hidden], stddev=0.01), name='wd2'),
-    'out': tf.Variable(tf.truncated_normal([second_hidden, n_classes], stddev=0.01), name='wout')
-}
-
-biases = {
-    # Convolution layers
-    'bc1': tf.Variable(tf.zeros([depth]), name='bc1'),
-    'bc2': tf.Variable(tf.constant(1.0, shape=[second_depth]), name='bc2'),
-    'bc3': tf.Variable(tf.zeros([third_depth]), name='bc3'),
-    'bc4': tf.Variable(tf.constant(1.0, shape=[last_depth]), name='bc4'),
-    # Fully connected layers
-    'bd1': tf.Variable(tf.constant(1.0, shape=[hidden]), name='bd1'),
-    'bd2': tf.Variable(tf.constant(1.0, shape=[second_hidden]), name='bd2'),
-    'out': tf.Variable(tf.constant(1.0, shape=[n_classes]), name='bout')
-}
-
-pool_strides = {
-    'first_pool_layer': [1, first_pool_stride_z, first_pool_stride_x, first_pool_stride_y, 1],
-    'second_pool_layer': [1, pool_stride, pool_stride, pool_stride, 1],
-    'third_pool_layer': [1, pool_stride, pool_stride, pool_stride, 1],
-}
-
-pool_windows = {
-    'first_pool_layer': [1, first_pool_window_z, first_pool_window_x, first_pool_window_y, 1],
-    'second_pool_layer': [1, pool_window, pool_window, pool_window, 1],
-    'third_pool_layer': [1, pool_window, pool_window, pool_window, 1]
+        # Fully connected layers
+        tf.Variable(tf.truncated_normal([out_conv_size, hidden], stddev=0.01), name='wd1'),
+        tf.Variable(tf.truncated_normal([hidden, second_hidden], stddev=0.01), name='wd2'),
+        tf.Variable(tf.truncated_normal([second_hidden, n_classes], stddev=0.01), name='wout')
+    ],
+    'biases': [
+        # Convolution layers
+        tf.Variable(tf.zeros([depth]), name='bc1'),
+        tf.Variable(tf.constant(1.0, shape=[second_depth]), name='bc2'),
+        tf.Variable(tf.zeros([third_depth]), name='bc3'),
+        tf.Variable(tf.constant(1.0, shape=[last_depth]), name='bc4'),
+        # Fully connected layers
+        tf.Variable(tf.constant(1.0, shape=[hidden]), name='bd1'),
+        tf.Variable(tf.constant(1.0, shape=[second_hidden]), name='bd2'),
+        tf.Variable(tf.constant(1.0, shape=[n_classes]), name='bout')
+    ],
+    'pool_strides': [
+        [1, first_pool_stride_z, first_pool_stride_x, first_pool_stride_y, 1],
+        [1, pool_stride, pool_stride, pool_stride, 1],
+        [],
+        [1, pool_stride, pool_stride, pool_stride, 1],
+    ],
+    'pool_windows': [
+        [1, first_pool_window_z, first_pool_window_x, first_pool_window_y, 1],
+        [1, pool_window, pool_window, pool_window, 1],
+        [],
+        [1, pool_window, pool_window, pool_window, 1],
+    ],
+    'strides': [
+        [1, 2, 2, 2, 1],
+        [1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1],
+    ]
 }
