@@ -8,6 +8,22 @@ import tensorflow as tf
 import config
 from utils import store_to_csv, read_csv
 
+# Network Input Parameters
+n_x = config.IMAGE_PXL_SIZE_X
+n_y = config.IMAGE_PXL_SIZE_Y
+n_z = config.SLICES
+num_channels = 1
+
+# tf Graph input
+x = tf.placeholder(tf.float32, shape=(config.BATCH_SIZE, n_z, n_x, n_y, num_channels), 
+    name='train_input')
+y = tf.placeholder(tf.int32, shape=(config.BATCH_SIZE,), name='label')
+keep_prob = tf.placeholder(tf.float32, name='dropout') #dropout (keep probability)
+
+tf_valid_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
+    name='validation_set')
+tf_test_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
+    name='test_set')
 
 input_img = tf.placeholder(tf.float32, 
     shape=(1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y))
@@ -33,7 +49,6 @@ def store_error_plots(validation_err, train_err):
         print("Drawing errors failed with: {}".format(e))
 
 
-# TODO: Think of a better evaluation strategy
 def high_error_increase(errors, 
                         current, 
                         least_count=3, 

@@ -4,9 +4,6 @@ import config
 from model_utils import calculate_conv_output_size
 
 # Parameters
-learning_rate = 0.001
-batch_size = 1
-
 depth = 16
 second_depth = 64
 third_depth = 64
@@ -44,17 +41,6 @@ n_input = n_x * n_y * n_z
 n_classes = 2
 dropout = 0.5 # Dropout, probability to keep units
 
-
-# tf Graph input
-x = tf.placeholder(tf.float32, shape=(batch_size, n_z, n_x, n_y, num_channels), 
-    name='train_input')
-y = tf.placeholder(tf.int32, shape=(batch_size,), name='label')
-keep_prob = tf.placeholder(tf.float32, name='dropout') #dropout (keep probability)
-
-tf_valid_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
-    name='validation_set')
-tf_test_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
-    name='test_set')
 
 # This handles padding in both convolution and pooling layers
 strides = [[2, 2, 2],
