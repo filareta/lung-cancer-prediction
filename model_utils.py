@@ -105,7 +105,7 @@ def get_specifity(confusion_matrix):
     return true_negatives / float(true_negatives + false_positives)
 
 
-def calculate_conv_output_size(x, y, z, strides, filters, paddings):
+def calculate_conv_output_size(x, y, z, strides, filters, paddings, last_depth):
     # Currently axes are transposed [z, x, y]
     for i, stride in enumerate(strides):
         if paddings[i] == 'VALID':
@@ -122,7 +122,7 @@ def calculate_conv_output_size(x, y, z, strides, filters, paddings):
             z = np.ceil(float(z) / float(stride[0]))
     print("Final X: {}, Y: {}, Z: {}.".format(x, y, z))
 
-    return (x, y, z)
+    return int(x * y * z * last_depth)
 
 
 def model_store_path(store_dir, step):

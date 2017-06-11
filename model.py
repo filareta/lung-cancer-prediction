@@ -8,18 +8,35 @@ class Convolution3DNetwork(object):
     DEFAULT_LAYER_PADDING = 'VALID'
     DEFAULT_CONV_STRIDE = [1, 1, 1, 1, 1]
 
-    def __init__(self, config=DefaultConfig()):
-        self._config = config
-        self._weights = config.get_fc_weights()
-        self._biases = config.get_fc_biases()
-        self._conv_weights = config.get_conv_weights()
-        self._conv_biases = config.get_conv_biases()
-        self._strides = config.get_strides()
-        self._pool_strides = config.get_pool_strides()
-        self._pool_windows = config.get_pool_windows()
+    def __init__(self, config=None):
+        self._config = config or DefaultConfig()
+        self._strides = self._config.get_strides()
+        self._pool_strides = self._config.get_pool_strides()
+        self._pool_windows = self._config.get_pool_windows()
 
-    def get_fc_weights(self):
-        return self._weights
+        self._init_weights()
+        self._init_biases()
+
+
+    def _init_weights(self):
+        self._weights = [
+            tf.Variable(init_func, name=name) 
+            for name, init_func in self._config.get_fc_weights()
+            ]
+        self._conv_weights = [
+                tf.Variable(init_func, name=name) 
+                for name, init_func in self._config.get_conv_weights()
+            ]
+
+    def _init_biases(self):
+        self._biases = [
+                tf.Variable(init_func, name=name) 
+                for name, init_func in self._config.get_fc_biases()
+            ]
+        self._conv_biases = [
+                tf.Variable(init_func, name=name) 
+                for name, init_func in self._config.get_conv_biases()
+            ]
 
     def weights(self):
         self._conv_weights + self._weights

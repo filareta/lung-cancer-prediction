@@ -1,6 +1,3 @@
-from model_definition import default_config
-
-
 class ModelConfig(object):
     def __init__(self, conv_layers_num, fc_layers_num, config_dict):
         self._weights = config_dict['weights']
@@ -42,6 +39,8 @@ class ModelConfig(object):
 
 
 class DefaultConfig(ModelConfig):
+    from model_definition.default import default_config
+
     def __init__(self, conv_layers_num=4, fc_layers_num=3, 
                  config_dict=default_config):
         super(DefaultConfig, self).__init__(conv_layers_num,
@@ -57,8 +56,10 @@ class DefaultConfig(ModelConfig):
         
 
 class BaselineConfig(ModelConfig):
+    from model_definition.baseline import baseline_config
+
     def __init__(self, conv_layers_num=3, fc_layers_num=2, 
-                 config_dict=None):
+                 config_dict=baseline_config):
         super(BaselineConfig, self).__init__(conv_layers_num,
                                              fc_layers_num,
                                              config_dict)
