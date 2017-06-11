@@ -18,9 +18,7 @@ import config
 # morphological operations. This is in HU units.
 threshold = -420
 nodule_threshold = -180
- 
-#TODO: compare performance of the binary_erosion, binary_closing, binary_dilation
-# operations in scipy and skimage libs
+
 
 class SegmentationAlgorithm(object):
     def __init__(self, threshold):

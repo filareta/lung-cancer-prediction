@@ -1,5 +1,8 @@
-LABELS_INPUT_DIR = './input'
+# The path points to the original images and is
+# used if a preprocessing step needs to be executed
 ALL_IMGS = 'D:/Fil/stage1'
+
+LABELS_INPUT_DIR = './input'
 
 PATIENT_LABELS_CSV = LABELS_INPUT_DIR + '/stage1_labels.csv'
 TEST_PATIENTS_IDS = LABELS_INPUT_DIR + '/stage1_sample_submission.csv'
@@ -50,6 +53,7 @@ preprocessed_imgs = {
 BASELINE = 'baseline'
 BASELINE_ADDITIONAL_LAYERS = 'baseline_add_layers'
 NO_REGULARIZATION = 'no_regularization'
+NO_REGULARIZATION_WATERSHED = 'no_regularization_watershed'
 DROPOUT_L2NORM_REGULARIZARION = 'with_regularization'
 REGULARIZATION_MORE_SLICES = 'regularization_more_slices'
 WITH_DATA_AUGMENTATION = 'more_slices_augmentation'
@@ -59,6 +63,7 @@ model_to_img_shape = {
     BASELINE: (100, 128, 128),
     BASELINE_ADDITIONAL_LAYERS: (100, 128, 128),
     NO_REGULARIZATION: (140, 256, 256),
+    NO_REGULARIZATION_WATERSHED: (140, 256, 256),
     DROPOUT_L2NORM_REGULARIZARION: (140, 256, 256),
     REGULARIZATION_MORE_SLICES: (180, 256, 256),
     WITH_DATA_AUGMENTATION: (180, 256, 256)
@@ -68,6 +73,7 @@ model_to_preprocessing = {
     BASELINE: BASELINE_PREPROCESS,
     BASELINE_ADDITIONAL_LAYERS: BASELINE_PREPROCESS,
     NO_REGULARIZATION: MORPHOLOGICAL_OPERATIONS,
+    NO_REGULARIZATION_WATERSHED: WATERSHED,
     DROPOUT_L2NORM_REGULARIZARION: WATERSHED,
     REGULARIZATION_MORE_SLICES: WATERSHED,
     WITH_DATA_AUGMENTATION: WATERSHED
@@ -82,8 +88,8 @@ IMG_SHAPE = model_to_img_shape[SELECTED_MODEL]
 SLICES, IMAGE_PXL_SIZE_X, IMAGE_PXL_SIZE_Y = IMG_SHAPE
 
 SEGMENTATION_ALGO = model_to_preprocessing[SELECTED_MODEL]
-SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
 
+SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
 
 
 

@@ -9,7 +9,7 @@ import scipy.ndimage as spi
 import lung_segmentation as ls
 
 import config
-from utils import store_patient_image
+from utils import store_patient_image, resize, normalize
 
 
 NUM_PROCESSES = multiprocessing.cpu_count()
@@ -106,10 +106,14 @@ def process_patients_chunk(patients):
             scans = load_scans(patient)
             patient_imgs = get_pixels_hu(scans)
 
-            segmented_lungs = np.stack([segmentation_algo.get_segmented_lungs(image)
-                                        for image in patient_imgs])
+            if config.SEGMENTATION_ALGO == config.BASELINE_PREPROCESS:
+                # Clean up unnecessary pixels, not in the area of interest and normalize
+                lungs = resize(normalize(patient_imgs))
+            else:
+                lungs = np.stack([segmentation_algo.get_segmented_lungs(image)
+                                  for image in patient_imgs])
             
-            store_patient_image(config.SEGMENTED_LUNGS_DIR, segmented_lungs, patient)
+            store_patient_image(config.SEGMENTED_LUNGS_DIR, lungs, patient)
             print("====== Store patient {} image ======.".format(patient))
         except Exception as e:
             print("An error occured while processing {}! {}".format(patient, e))
