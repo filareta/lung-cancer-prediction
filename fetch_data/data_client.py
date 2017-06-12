@@ -1,0 +1,62 @@
+import os
+
+from google.cloud import storage
+from google.cloud.storage import Blob
+
+import googleapiclient.discovery
+
+from oauth2client.client import GoogleCredentials
+
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './lung-cancer-tests-168b7b36ab99.json'
+credentials = GoogleCredentials.get_application_default()
+
+project_name = 'lung-cancer-tests'
+
+# The name for the new bucket
+bucket_name = 'segmented-lungs'
+
+
+def create_service():
+    # Construct the service object for interacting with the Cloud Storage API -
+    # the 'storage' service, at version 'v1'.
+    # You can browse other available api services and versions here:
+    #     http://g.co/dv/api-client-library/python/apis/
+    return googleapiclient.discovery.build('storage', 'v1', credentials=credentials)
+
+
+def list_bucket(bucket):
+    """Returns a list of metadata of the objects within the given bucket."""
+    service = create_service()
+
+    # Create a request to objects.list to retrieve a list of objects.
+    fields_to_return = \
+        'nextPageToken,items(name,size,contentType,metadata(my-key))'
+    req = service.objects().list(bucket=bucket, fields=fields_to_return)
+
+    all_objects = []
+    # If too many items to list in one request, list_next() will
+    # automatically handle paging with the pageToken.
+    while req:
+        resp = req.execute()
+        all_objects.extend(resp.get('items', []))
+        req = service.objects().list_next(req, resp)
+
+    return all_objects
+
+
+all_blobs = map(lambda item: item['name'], list_bucket(bucket_name))
+
+client = storage.Client(project=project_name)
+bucket = client.get_bucket(bucket_name)
+
+for blob_item in all_blobs:
+    blob = Blob(blob_item, bucket)
+    dir_name = os.path.dirname(blob_item)
+
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    with open(blob_item, 'wb') as file_obj:
+
+        blob.download_to_file(file_obj)
+        print("Stored blob with name: ", blob_item)
