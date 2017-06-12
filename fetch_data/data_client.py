@@ -11,11 +11,6 @@ from oauth2client.client import GoogleCredentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './lung-cancer-tests-168b7b36ab99.json'
 credentials = GoogleCredentials.get_application_default()
 
-project_name = 'lung-cancer-tests'
-
-# The name for the new bucket
-bucket_name = 'segmented-lungs'
-
 
 def create_service():
     # Construct the service object for interacting with the Cloud Storage API -
@@ -45,18 +40,26 @@ def list_bucket(bucket):
     return all_objects
 
 
-all_blobs = map(lambda item: item['name'], list_bucket(bucket_name))
+def collect_images(bucket_name, project_name):
+    all_blobs = map(lambda item: item['name'], list_bucket(bucket_name))
 
-client = storage.Client(project=project_name)
-bucket = client.get_bucket(bucket_name)
+    client = storage.Client(project=project_name)
+    bucket = client.get_bucket(bucket_name)
 
-for blob_item in all_blobs:
-    blob = Blob(blob_item, bucket)
-    dir_name = os.path.dirname(blob_item)
+    for blob_item in all_blobs:
+        blob = Blob(blob_item, bucket)
+        dir_name = os.path.dirname(blob_item)
 
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-    with open(blob_item, 'wb') as file_obj:
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        with open(blob_item, 'wb') as file_obj:
 
-        blob.download_to_file(file_obj)
-        print("Stored blob with name: ", blob_item)
+            blob.download_to_file(file_obj)
+            print("Stored blob with name: ", blob_item)
+
+
+if __name__ == '__main__':
+    project_name = 'lung-cancer-tests'
+    # The name for the new bucket
+    bucket_name = 'segmented-lungs'
+    collect_images(bucket_name, project_name)
