@@ -26,8 +26,10 @@
    * **pandas**
    * **imutils**
    * ** tensorflow**
+   * ** google-api-python-client**
+   * ** google-cloud-storage**
    * **opencv** module for python
-  
+
    All of the modules instead of tensorflow and cv2 could be easily installed using either 
   
 ```
