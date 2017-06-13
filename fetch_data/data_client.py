@@ -8,7 +8,6 @@ import googleapiclient.discovery
 from oauth2client.client import GoogleCredentials
 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './lung-cancer-tests-168b7b36ab99.json'
 credentials = GoogleCredentials.get_application_default()
 
 
@@ -40,7 +39,7 @@ def list_bucket(bucket):
     return all_objects
 
 
-def collect_images(bucket_name, project_name):
+def collect_images(bucket_name, project_name, working_dir='./'):
     all_blobs = map(lambda item: item['name'], list_bucket(bucket_name))
 
     client = storage.Client(project=project_name)
@@ -48,18 +47,12 @@ def collect_images(bucket_name, project_name):
 
     for blob_item in all_blobs:
         blob = Blob(blob_item, bucket)
-        dir_name = os.path.dirname(blob_item)
+        complete_path = os.path.join(working_dir, blob_item)
+        dir_name = os.path.dirname(complete_path)
 
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-        with open(blob_item, 'wb') as file_obj:
+        with open(complete_path, 'wb') as file_obj:
 
             blob.download_to_file(file_obj)
-            print("Stored blob with name: ", blob_item)
-
-
-if __name__ == '__main__':
-    project_name = 'lung-cancer-tests'
-    # The name for the new bucket
-    bucket_name = 'segmented-lungs'
-    collect_images(bucket_name, project_name)
+            print("Stored blob path: ", complete_path)

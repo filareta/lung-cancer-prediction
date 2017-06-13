@@ -1,3 +1,5 @@
+import os
+
 # The path points to the original images and is
 # used if a preprocessing step needs to be executed
 ALL_IMGS = 'D:/Fil/stage1'
@@ -42,12 +44,18 @@ BASELINE_PREPROCESS = 0
 MORPHOLOGICAL_OPERATIONS = 1
 WATERSHED = 2
 
-# TODO: Change paths accordingly after adding download scripts
-preprocessed_imgs = {
-    BASELINE_PREPROCESS: 'D:/Fil/baseline_preprocessing',
-    MORPHOLOGICAL_OPERATIONS: '../kaggle-data/segmented_morph_op',
-    WATERSHED: 'D:/Fil/segmented_watershed'
+FETCHED_DATA_DIR = './fetch_data/'
+
+# Configuration for the buckets with preprocessed images
+# to download the data from
+bucket_names = {
+    BASELINE_PREPROCESS: 'baseline-preprocess',
+    MORPHOLOGICAL_OPERATIONS: 'segmented-lungs',
+    WATERSHED: 'segmented-lungs-watershed'  
 }
+
+preprocessed_imgs = {algo: FETCHED_DATA_DIR + bucket_name
+                     for (algo, bucket_name) in bucket_names.items()}
 
 # Defined models
 BASELINE = 'baseline'
@@ -81,7 +89,7 @@ model_to_preprocessing = {
 
 # This configuration must be changed in order to select other
 # predefined model for training
-SELECTED_MODEL = WITH_DATA_AUGMENTATION
+SELECTED_MODEL = BASELINE
 
 IMG_SHAPE = model_to_img_shape[SELECTED_MODEL]
 
@@ -90,6 +98,14 @@ SLICES, IMAGE_PXL_SIZE_X, IMAGE_PXL_SIZE_Y = IMG_SHAPE
 SEGMENTATION_ALGO = model_to_preprocessing[SELECTED_MODEL]
 
 SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
+
+BUCKET_IN_USE = bucket_names[SEGMENTATION_ALGO]
+
+# Google cloud API client related
+# Use for downloading preprocessed images from the
+# cloud buckets
+PROJECT_NAME = 'lung-cancer-tests'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] =  FETCHED_DATA_DIR + 'lung-cancer-tests-168b7b36ab99.json'
 
 
 
