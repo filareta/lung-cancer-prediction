@@ -115,7 +115,7 @@
   *   Installing on Mac OS X - https://www.tensorflow.org/install/install_mac
 
 
-  After installing tensorflow, you can simply use the requirements.txt file provided in the project. Execute the following line
+  After installing tensorflow, you can simply use the requirements.txt file provided in the project. Execute the following line:
 
 
 ```
@@ -138,7 +138,7 @@
 ###  How to start data preprocessing? ###
 
   
-To start processing the dicom files you need to run
+To start processing the dicom files you need to run:
 
    
 ```
@@ -149,12 +149,14 @@ To start processing the dicom files you need to run
 
   Although this step is not required, since original images are too big and data preprocessing is time consuming. First stage of image preprocessing has been already executed and the data is stored in Google Cloud using several buckets:
 
-    * https://console.cloud.google.com/storage/browser/baseline-preprocess/baseline_preprocessing/?project=lung-cancer-tests
+    
+    *https://console.cloud.google.com/storage/browser/baseline-preprocess/baseline_preprocessing/?project=lung-cancer-tests
 
-    * https://console.cloud.google.com/storage/browser/segmented-lungs/segmented_morph_op/?project=lung-cancer-tests
+    *https://console.cloud.google.com/storage/browser/segmented-lungs/segmented_morph_op/?project=lung-cancer-tests
 
-    * https://console.cloud.google.com/storage/browser/segmented-lungs-watershed/segmented_watershed/?project=lung-cancer-tests
+    *https://console.cloud.google.com/storage/browser/segmented-lungs-watershed/segmented_watershed/?project=lung-cancer-tests
  
+
   To simply download the data required for the model to be trained you need to execute:
 
 
@@ -165,7 +167,7 @@ To start processing the dicom files you need to run
 ```
   
   Compressed 3D patient images will be downloaded and by default stored under ***./fetch_data/ *** directory.
-  
+
   To select which model will be trained, you need to change the value of SELECTED_MODEL in ***config.py*** (simply choose one of the predefined model names and the other configurations will be changed correspondingly)
 
   Source and destination directories are configurable using the ***config.py***:
