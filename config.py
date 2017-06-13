@@ -89,7 +89,7 @@ model_to_preprocessing = {
 
 # This configuration must be changed in order to select other
 # predefined model for training
-SELECTED_MODEL = BASELINE
+SELECTED_MODEL = WITH_DATA_AUGMENTATION
 
 IMG_SHAPE = model_to_img_shape[SELECTED_MODEL]
 

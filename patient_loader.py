@@ -1,7 +1,6 @@
 import os
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from random import randrange
 
 import utils
@@ -109,16 +108,6 @@ class NodulesScansLoader(PatientImageLoader):
     @property
     def name(self):
         return 'nodules_scans_loader'
-
-
-if __name__ == '__main__':
-    loader = SegmentedLungsScansLoader()
-    for patient in os.listdir(config.SEGMENTED_LUNGS_DIR):
-        lungs = loader.load_scans('026470d51482c93efc18b9803159c960-augm')
-        for i, lung in enumerate(lungs):
-            print(i)
-            plt.imshow(lung, cmap='gray')
-            plt.show()
 
 
 
