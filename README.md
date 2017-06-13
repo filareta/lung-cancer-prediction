@@ -147,14 +147,14 @@ To start processing the dicom files you need to run:
      python preprocess_dicoms.py
 ```
 
+
   Although this step is not required, since original images are too big and data preprocessing is time consuming. First stage of image preprocessing has been already executed and the data is stored in Google Cloud using several buckets:
 
-    
-    *  Baseline - https://console.cloud.google.com/storage/browser/baseline-preprocess/baseline_preprocessing/?project=lung-cancer-tests
+   *  Baseline - https://console.cloud.google.com/storage/browser/baseline-preprocess/baseline_preprocessing/?project=lung-cancer-tests
 
-    *  Morphological operations segmentation - https://console.cloud.google.com/storage/browser/segmented-lungs/segmented_morph_op/?project=lung-cancer-tests
+   *  Morphological operations segmentation - https://console.cloud.google.com/storage/browser/segmented-lungs/segmented_morph_op/?project=lung-cancer-tests
 
-    * Waterhsed segmentation - https://console.cloud.google.com/storage/browser/segmented-lungs-watershed/segmented_watershed/?project=lung-cancer-tests
+   * Waterhsed segmentation - https://console.cloud.google.com/storage/browser/segmented-lungs-watershed/segmented_watershed/?project=lung-cancer-tests
  
 
   To simply download the data required for the model to be trained you need to execute:
