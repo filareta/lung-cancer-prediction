@@ -205,5 +205,5 @@ To start processing the dicom files you need to run:
 
 Other properties that might be configured are related with storing model states and summary exported during training.
   
-  * SUMMARIES_DIR - points to the directory where summary for the error, accuracy and senitivity is exported during trainig. The data can be viewed using Tensorboard.
-  * RESTORE_MODEL_CKPT - point to the checkpoint file, you might want to resume training from or simply use for evaluating test examples with the saved state of the network (if you want to resume triaing set RESTORE to True and point out the START_STEP for proper counting of the epoches)
+  * SUMMARIES_DIR - points to the directory where summary for the error, accuracy and sensitivity is exported during training. The data can be viewed using Tensorboard.
+  * RESTORE_MODEL_CKPT - point to the checkpoint file, you might want to resume training from or simply use for evaluating test examples with the saved state of the network (if you want to resume training set RESTORE to True and point out the START_STEP for proper counting of the epochs)
