@@ -9,7 +9,7 @@
 ### What is this repository for? ###
 
 * Experimenting with approaches for processing the lung CT scans that are publicly available in the kaggle competition  Data Science Bowl 2017.
-* Experimenting with deep neural networks for training a model that hepls earily cancer detection.
+* Experimenting with deep neural networks for training a model that helps early cancer detection.
 
 
 ### How do I get set up? ###
