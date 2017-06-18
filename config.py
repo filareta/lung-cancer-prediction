@@ -54,8 +54,14 @@ bucket_names = {
     WATERSHED: 'segmented-lungs-watershed'  
 }
 
-preprocessed_imgs = {algo: FETCHED_DATA_DIR + bucket_name
-                     for (algo, bucket_name) in bucket_names.items()}
+# construct the path using the object name in the buckets, since
+# by default images are stored in directories with the object name
+preprocessed_imgs = {
+    BASELINE_PREPROCESS: os.path.join(FETCHED_DATA_DIR, 'baseline_preprocessing'),
+    MORPHOLOGICAL_OPERATIONS: os.path.join(FETCHED_DATA_DIR, 'segmented_morph_op'),
+    WATERSHED: os.path.join(FETCHED_DATA_DIR, 'segmented_watershed')  
+}
+
 
 # Defined models
 BASELINE = 'baseline'
@@ -100,6 +106,8 @@ SEGMENTATION_ALGO = model_to_preprocessing[SELECTED_MODEL]
 SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
 
 BUCKET_IN_USE = bucket_names[SEGMENTATION_ALGO]
+
+download_images = not os.path.exists(SEGMENTED_LUNGS_DIR)
 
 # Google cloud API client related
 # Use for downloading preprocessed images from the
