@@ -5,7 +5,6 @@ import tensorflow as tf
 import config
 
 from model_utils import x, y, keep_prob
-from model_utils import tf_valid_dataset, tf_test_dataset
 from model_utils import input_img, reshape_op
 
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
@@ -38,8 +37,6 @@ if not config.RESTORE:
     tf.add_to_collection('vars', x)
     tf.add_to_collection('vars', y)
     tf.add_to_collection('vars', keep_prob)
-    tf.add_to_collection('vars', tf_valid_dataset)
-    tf.add_to_collection('vars', tf_test_dataset)
 
     for weigth_var in model.weights():
         tf.add_to_collection('vars', weigth_var)
@@ -77,17 +74,11 @@ for var in trainable_vars:
     tf.summary.histogram(var.name, var)
 
 # Predictions for the training, validation, and test data.
-train_prediction = tf.nn.softmax(pred, name='train_prediction')
-valid_prediction = tf.nn.softmax(model.conv_net(tf_valid_dataset, 1.0), 
-    name='valid_prediction')
-test_prediction = tf.nn.softmax(model.conv_net(tf_test_dataset, 1.0), 
-    name='test_prediction')
+softmax_prediction = tf.nn.softmax(pred, name='softmax_prediction')
 
 if not config.RESTORE:
     tf.add_to_collection('vars', cost)
-    tf.add_to_collection('vars', train_prediction)
-    tf.add_to_collection('vars', valid_prediction)
-    tf.add_to_collection('vars', test_prediction)
+    tf.add_to_collection('vars', softmax_prediction)
 
 
 merged = tf.summary.merge_all()
@@ -173,7 +164,7 @@ with tf.Session() as sess:
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
 
             if step % display_steps == 0:
-                _, loss, predictions, summary = sess.run([train_op, cost, train_prediction, merged], 
+                _, loss, predictions, summary = sess.run([train_op, cost, softmax_prediction, merged], 
                                                           feed_dict=feed_dict)
 
                 try:
@@ -181,7 +172,7 @@ with tf.Session() as sess:
                 except Exception as e:
                     print("Exeption raised during summary export. ", e)
             else:
-                _, loss, predictions = sess.run([train_op, cost, train_prediction], 
+                _, loss, predictions = sess.run([train_op, cost, softmax_prediction], 
                                                  feed_dict=feed_dict)
 
             train_pred.extend(predictions)
@@ -217,8 +208,8 @@ with tf.Session() as sess:
         print('===== Evaluate validation set =====')
         validation_acc, validation_log_loss, val_sensitivity, val_specifity = evaluate_validation_set(sess, 
                                                                                                       validation_set,
-                                                                                                      valid_prediction,
-                                                                                                      tf_valid_dataset,
+                                                                                                      softmax_prediction,
+                                                                                                      x,
                                                                                                       batch_size)
         export_evaluation_summary(validation_log_loss, 
                                   validation_acc, 
@@ -246,7 +237,7 @@ with tf.Session() as sess:
         if high_error_increase(validation_errors[-last_errors:], 
                                validation_log_loss,
                                last_errors,
-                               validaton_logg_loss_incr_threshold):
+                               validaton_log_loss_incr_threshold):
             if tolerance and train_log_loss <= train_errors_per_epoch[-1]:
                 print("Train error still decreases, continue...")
                 tolerance -= 1
@@ -274,5 +265,5 @@ with tf.Session() as sess:
     # ============= REAL TEST DATA EVALUATION =====================
     evaluate_test_set(sess,
                       exact_tests,
-                      test_prediction,
-                      tf_test_dataset)
+                      softmax_prediction,
+                      x)

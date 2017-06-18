@@ -16,14 +16,9 @@ num_channels = config.NUM_CHANNELS
 
 # tf Graph input
 x = tf.placeholder(tf.float32, shape=(config.BATCH_SIZE, n_z, n_x, n_y, num_channels), 
-    name='train_input')
+    name='input')
 y = tf.placeholder(tf.int32, shape=(config.BATCH_SIZE,), name='label')
 keep_prob = tf.placeholder(tf.float32, name='dropout') #dropout (keep probability)
-
-tf_valid_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
-    name='validation_set')
-tf_test_dataset = tf.placeholder(tf.float32, shape=(None, n_z, n_x, n_y, num_channels), 
-    name='test_set')
 
 input_img = tf.placeholder(tf.float32, 
     shape=(1, config.SLICES, config.IMAGE_PXL_SIZE_X, config.IMAGE_PXL_SIZE_Y))
@@ -139,7 +134,7 @@ def evaluate_validation_set(sess,
         validation_batch, validation_label = validation_set.next_batch(batch_size)
         reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(validation_batch)})
         batch_pred = sess.run(valid_prediction, 
-            feed_dict={feed_data_key: reshaped})
+            feed_dict={feed_data_key: reshaped, keep_prob: 1.})
        
         validation_pred.extend(batch_pred)
         validation_labels.extend(validation_label)
@@ -175,7 +170,7 @@ def evaluate_test_set(sess,
             if len(test_img):
                 patients.append(patient)
                 output = sess.run(test_prediction, 
-                    feed_dict={feed_data_key: test_img})
+                    feed_dict={feed_data_key: test_img, keep_prob: 1.})
                 max_ind_f = tf.argmax(output, 1)
                 ind_value = sess.run(max_ind_f)
                 max_prob = get_max_prob(output[0], ind_value[0])

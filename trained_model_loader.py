@@ -3,7 +3,7 @@ import tensorflow as tf
 from utils import store_to_csv
 import config
 
-from model_utils import tf_test_dataset, evaluate_test_set
+from model_utils import x, evaluate_test_set
 from model_factory import ModelFactory
 
 
@@ -11,8 +11,8 @@ from model_factory import ModelFactory
 factory = ModelFactory()
 model = factory.get_network_model()
 
-test_prediction = tf.nn.softmax(model.conv_net(tf_test_dataset, 1.0), 
-    name='test_prediction')
+softmax_prediction = tf.nn.softmax(model.conv_net(x, 1.0), 
+    name='softmax_prediction')
 
 data_loader = factory.get_data_loader()
 test_set = data_loader.get_exact_tests_set()
@@ -28,5 +28,5 @@ with tf.Session() as sess:
 
     evaluate_test_set(sess, 
                       test_set,
-                      test_prediction,
-                      tf_test_dataset)
+                      softmax_prediction,
+                      x)
