@@ -88,7 +88,7 @@ class SegmentedLungsScansLoader(PatientImageLoader):
 
     @property
     def name(self):
-        return 'segmented_lungs_loader_with_augmentation'
+        return 'segmented_lungs_loader'
 
 
 class NodulesScansLoader(PatientImageLoader):

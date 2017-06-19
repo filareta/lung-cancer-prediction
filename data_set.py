@@ -99,8 +99,8 @@ class DataLoader(object):
         return self._images_loader.load_scans(patient)
 
     def results_out_dir(self):
-        out_dir = os.path.join(config.MODELS_STORE_DIR,
-            self._images_loader.name)
+        out_dir = os.path.join(config.MODELS_STORE_DIR, 
+                               config.SELECTED_MODEL)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
