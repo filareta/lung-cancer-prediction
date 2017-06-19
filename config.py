@@ -97,11 +97,13 @@ model_to_preprocessing = {
 # predefined model for training
 SELECTED_MODEL = WITH_DATA_AUGMENTATION
 
-IMG_SHAPE = model_to_img_shape[SELECTED_MODEL]
+SEGMENTATION_ALGO = model_to_preprocessing.get(SELECTED_MODEL, 
+    model_to_preprocessing[WITH_DATA_AUGMENTATION]) 
+
+IMG_SHAPE = model_to_img_shape.get(SELECTED_MODEL, 
+                                   model_to_img_shape[WITH_DATA_AUGMENTATION])
 
 SLICES, IMAGE_PXL_SIZE_X, IMAGE_PXL_SIZE_Y = IMG_SHAPE
-
-SEGMENTATION_ALGO = model_to_preprocessing[SELECTED_MODEL]
 
 SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
 
