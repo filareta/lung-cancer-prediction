@@ -10,7 +10,7 @@ from model_utils import input_img, reshape_op
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
 from model_utils import high_error_increase, display_confusion_matrix_info
-from model_utils import get_specifity, get_sensitivity
+from model_utils import get_specifity, get_sensitivity, validate_data_loaded
 from model import loss_function_with_logits, sparse_loss_with_logits
 from model_factory import ModelFactory
 
@@ -160,6 +160,10 @@ with tf.Session() as sess:
 
         for i in range(training_set.num_samples):
             batch_data, batch_labels = training_set.next_batch(batch_size)
+
+            if not validate_data_loaded(batch_data, batch_labels):
+                break
+
             reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(batch_data)})
             feed_dict = {x: reshaped, y: batch_labels, keep_prob: dropout}
 
@@ -187,6 +191,10 @@ with tf.Session() as sess:
         
         print("============== Train Epoch {} finished! {} samples processed.".format(
             training_set.finished_epochs, len(train_pred)))
+
+        if not len(train_pred):
+            break
+            
         train_acc_epoch = accuracy(np.stack(train_pred), np.stack(train_labels))
 
         train_log_loss = evaluate_log_loss(train_pred, train_labels)

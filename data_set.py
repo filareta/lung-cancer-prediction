@@ -96,8 +96,7 @@ class DataLoader(object):
         return DataSet(self._exact_tests, self, False)
 
     def load_image(self, patient):
-        scans = self._images_loader.load_scans(patient)
-        return scans
+        return self._images_loader.load_scans(patient)
 
     def results_out_dir(self):
         out_dir = os.path.join(config.MODELS_STORE_DIR,
@@ -135,17 +134,22 @@ class DataSet(object):
             return [], []
 
         data_set, labels = [], []
+        try:
+            for patient in self._data_set[start:end]:
+                image, label = self._patient_with_label(patient)
+                if len(image) and label is not None:
+                    labels.append(label)
+                    data_set.append(image)
 
-        for patient in self._data_set[start:end]:
-            image, label = self._patient_with_label(patient)
-            if len(image) and label is not None:
-                labels.append(label)
-                data_set.append(image)
+            if len(data_set) < batch_size:
+                print("Current batch size is less: {}".format(len(data_set)))
+                print("Start {}, end {}, samples {}".format(start, end, 
+                    self._num_samples))
+        except FileNotFoundError as e:
+            print("Unable to laod image for patient" + patient + 
+                ". Please check if you have downloaded the data.",
+                " Otherwise use the data_collector.py script.")
 
-        if len(data_set) < batch_size:
-            print("Current batch size is less: {}".format(len(data_set)))
-            print("Start {}, end {}, samples {}".format(start, end, 
-                self._num_samples))
         return data_set, labels
 
     # Used during exact testing phase, here no labels are returned

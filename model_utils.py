@@ -121,6 +121,13 @@ def model_store_path(store_dir, step):
         'model_{}.ckpt'.format(step))
 
 
+def validate_data_loaded(images_batch, images_labels):
+    if not (len(images_labels) and len(images_labels)):
+        print("Please check you configurations, unable to laod the images...")
+        return False
+    return True
+
+
 def evaluate_validation_set(sess, 
                             validation_set, 
                             valid_prediction, 
@@ -132,6 +139,8 @@ def evaluate_validation_set(sess,
     index = 0
     while index < validation_set.num_samples:
         validation_batch, validation_label = validation_set.next_batch(batch_size)
+        if not validate_data_loaded(validation_batch, validation_labels):
+            return
         reshaped = sess.run(reshape_op, feed_dict={input_img: np.stack(validation_batch)})
         batch_pred = sess.run(valid_prediction, 
             feed_dict={feed_data_key: reshaped, keep_prob: 1.})
@@ -163,11 +172,11 @@ def evaluate_test_set(sess,
     try:
         while i < test_set.num_samples:
             patient, test_img = test_set.next_patient()
-            test_img = sess.run(reshape_test_op, feed_dict={input_test_img: test_img})
-            i += 1
             # returns index of column with highest probability
             # [first class=no cancer=0, second class=cancer=1]
             if len(test_img):
+                test_img = sess.run(reshape_test_op, feed_dict={input_test_img: test_img})
+                i += 1
                 patients.append(patient)
                 output = sess.run(test_prediction, 
                     feed_dict={feed_data_key: test_img, keep_prob: 1.})
