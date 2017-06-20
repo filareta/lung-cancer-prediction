@@ -203,7 +203,7 @@ To start processing the dicom files you need to run:
 
 ### How to evaluate stored model? ###
 
- You can evaluate the results for the trainig set for an already stored model. Networks states are stored under the directory pointed from the MODELS_STORE_DIR configuration. 
+ You can evaluate the results for the training set for an already stored model. Networks states are stored under the directory pointed from the MODELS_STORE_DIR configuration. 
  For each of the trained models a directory with the name of the model is created and all stored states are saved there. To evaluate the network at some of the saved states
  you must change the RESTORE_MODEL_CKPT to point to the checkpoint file with the desired name. Then simply execute from the command line:
  
@@ -213,7 +213,8 @@ To start processing the dicom files you need to run:
      python trained_model_loader.py
 ```
 
- The solution will be stored in a csv file with location and name configured using SOLUTION_FILE_PATH, by default it is ***'./solution_last.csv'***.
+ The solution will be stored in a csv file with location and name configured using SOLUTION_FILE_PATH, by default it is ***'./solution_last.csv'***. In the command line you will also see an evaluation of the solution – confusion matrix for the training set, logarithmic loss, accuracy, sensitivity / recall and specificity. Also a csv report will be generated with the predicted results and the exact labels of the test data. The report name is constructed from the solution file name appending the prefix report_ and is located in the same directory as the solution file.
+ 
 
 ### Other configurations? ###
 
