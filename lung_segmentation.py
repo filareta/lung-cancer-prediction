@@ -215,5 +215,4 @@ def get_segmentation_algorithm():
     if config.SEGMENTATION_ALGO == config.WATERSHED:
         return WatershedSegmentation()
 
-    # default for now
-    return MorphologicalSegmentation()
+    return WatershedSegmentation()
