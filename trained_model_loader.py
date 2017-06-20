@@ -3,7 +3,7 @@ import tensorflow as tf
 from utils import store_to_csv
 import config
 
-from model_utils import x, evaluate_test_set
+from model_utils import x, evaluate_test_set, evaluate_solution
 from model_factory import ModelFactory
 
 
@@ -30,3 +30,5 @@ with tf.Session() as sess:
                       test_set,
                       softmax_prediction,
                       x)
+
+evaluate_solution(config.SOLUTION_FILE_PATH)
