@@ -11,7 +11,7 @@ from model_utils import input_img, reshape_op
 from model_utils import evaluate_log_loss, accuracy, evaluate_validation_set
 from model_utils import model_store_path, store_error_plots, evaluate_test_set
 from model_utils import high_error_increase, display_confusion_matrix_info
-from model_utils import get_specifity, get_sensitivity, validate_data_loaded
+from model_utils import get_specificity, get_sensitivity, validate_data_loaded
 from model import loss_function_with_logits, sparse_loss_with_logits
 from model_factory import ModelFactory
 
@@ -206,9 +206,9 @@ with tf.Session() as sess:
         print('================ Train set confusion matrix ====================')
         confusion_matrix = display_confusion_matrix_info(train_labels, train_pred)
         train_sensitivity = get_sensitivity(confusion_matrix)
-        train_specifity = get_specifity(confusion_matrix)
-        print('Test data sensitivity {} and specifity {}'.format(
-            train_sensitivity, train_specifity))
+        train_specificity = get_specificity(confusion_matrix)
+        print('Test data sensitivity {} and specificity {}'.format(
+            train_sensitivity, train_specificity))
 
         export_evaluation_summary(train_log_loss, 
                                   train_acc_epoch, 
@@ -216,11 +216,13 @@ with tf.Session() as sess:
                                   step, sess, train_writer)
 
         print('===== Evaluate validation set =====')
-        validation_acc, validation_log_loss, val_sensitivity, val_specifity = evaluate_validation_set(sess, 
-                                                                                                      validation_set,
-                                                                                                      softmax_prediction,
-                                                                                                      x,
-                                                                                                      batch_size)
+        validation_acc, validation_log_loss, val_sensitivity, val_specificity = evaluate_validation_set(sess, 
+                                                                                                        validation_set,
+                                                                                                        softmax_prediction,
+                                                                                                        x,
+                                                                                                        batch_size)
+        if not validation_log_loss:
+            break
         export_evaluation_summary(validation_log_loss, 
                                   validation_acc, 
                                   val_sensitivity, 
@@ -229,8 +231,8 @@ with tf.Session() as sess:
         print('Validation accuracy: %.1f%%' % validation_acc)
         print('<<=== LOG LOSS overall validation samples: {} ===>>.'.format(
             validation_log_loss))
-        print('Validation set sensitivity {} and specifity {}'.format(
-            val_sensitivity, val_specifity))
+        print('Validation set sensitivity {} and specificity {}'.format(
+            val_sensitivity, val_specificity))
 
         if validation_log_loss < best_validation_err and val_sensitivity > best_validation_sensitivity:
             best_validation_err = validation_log_loss
