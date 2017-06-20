@@ -108,6 +108,3 @@ class NodulesScansLoader(PatientImageLoader):
     @property
     def name(self):
         return 'nodules_scans_loader'
-
-
-

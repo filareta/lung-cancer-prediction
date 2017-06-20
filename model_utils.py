@@ -230,5 +230,3 @@ def evaluate_solution(sample_solution, with_merged_report=True):
         df.to_csv('report_{}'.format(os.path.basename(sample_solution)))
 
     return (log_loss_err, acc, sensitivity, specificity)
-
-

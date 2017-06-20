@@ -116,6 +116,3 @@ download_images = not os.path.exists(SEGMENTED_LUNGS_DIR)
 # cloud buckets
 PROJECT_NAME = 'lung-cancer-tests'
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] =  FETCHED_DATA_DIR + 'lung-cancer-tests-168b7b36ab99.json'
-
-
-
