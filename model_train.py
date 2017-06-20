@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 
@@ -140,14 +141,15 @@ def export_evaluation_summary(log_loss_value,
 
 # Launch the graph
 with tf.Session() as sess:
-    train_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/train')
-    validation_writer = tf.summary.FileWriter(config.SUMMARIES_DIR + '/validation')
+    train_writer = tf.summary.FileWriter(os.path.join(config.SUMMARIES_DIR, 'train'))
+    validation_writer = tf.summary.FileWriter(os.path.join(config.SUMMARIES_DIR, 
+                                                           'validation'))
 
     sess.run(init)
 
     if config.RESTORE:
         print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
-        saver.restore(sess, model_out_dir + config.RESTORE_MODEL_CKPT)
+        saver.restore(sess, os.path.join(model_out_dir, config.RESTORE_MODEL_CKPT))
     
 
     # Add the model graph to TensorBoard

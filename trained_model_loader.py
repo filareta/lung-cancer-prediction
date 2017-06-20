@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 
 from utils import store_to_csv
@@ -24,7 +25,7 @@ saver = tf.train.Saver()
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    saver.restore(sess, out_dir + config.RESTORE_MODEL_CKPT)
+    saver.restore(sess, os.path.join(out_dir, config.RESTORE_MODEL_CKPT))
 
     evaluate_test_set(sess, 
                       test_set,
