@@ -199,6 +199,21 @@ To start processing the dicom files you need to run:
   three fully connected layers.
 
   * default.py - The default configuration also has seven layers in total, but some of the filters have different sizes from those in the previous configuration.
+  
+
+### How to evaluate stored model? ###
+
+ You can evaluate the results for the trainig set for an already stored model. Networks states are stored under the directory pointed from the MODELS_STORE_DIR configuration. 
+ For each of the trained models a directory with the name of the model is created and all stored states are saved there. To evaluate the network at some of the saved states
+ you must change the RESTORE_MODEL_CKPT to point to the checkpoint file with the desired name. Then simply execute from the command line:
+ 
+```
+#!shell
+
+     python trained_model_loader.py
+```
+
+ The solution will be stored in a csv file with location and name configured using SOLUTION_FILE_PATH, by default it is ***'./solution_last.csv'***.
 
 ### Other configurations? ###
 
