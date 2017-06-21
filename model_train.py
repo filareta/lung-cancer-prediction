@@ -191,7 +191,7 @@ with tf.Session() as sess:
             saver.save(sess, model_store_path(model_out_dir, 'lungs' + str(step)))
 
         
-        print("============== Train Epoch {} finished! {} samples processed.".format(
+        print("Train epoch {} finished. {} samples processed.".format(
             training_set.finished_epochs, len(train_pred)))
 
         if not len(train_pred):
@@ -201,9 +201,9 @@ with tf.Session() as sess:
 
         train_log_loss = evaluate_log_loss(train_pred, train_labels)
     
-        print('<-===== Train log loss error {} ======->'.format(train_log_loss))
-        print('<-===== Train set accuracy {} ======->'.format(train_acc_epoch))
-        print('================ Train set confusion matrix ====================')
+        print('Train log loss error {}.'.format(train_log_loss))
+        print('Train set accuracy {}.'.format(train_acc_epoch))
+        print('Train set confusion matrix.')
         confusion_matrix = display_confusion_matrix_info(train_labels, train_pred)
         train_sensitivity = get_sensitivity(confusion_matrix)
         train_specificity = get_specificity(confusion_matrix)
@@ -215,7 +215,7 @@ with tf.Session() as sess:
                                   train_sensitivity, 
                                   step, sess, train_writer)
 
-        print('===== Evaluate validation set =====')
+        print('Evaluate validation set')
         validation_acc, validation_log_loss, val_sensitivity, val_specificity = evaluate_validation_set(sess, 
                                                                                                         validation_set,
                                                                                                         softmax_prediction,
@@ -229,7 +229,7 @@ with tf.Session() as sess:
                                   step, sess, validation_writer)
 
         print('Validation accuracy: %.1f%%' % validation_acc)
-        print('<<=== LOG LOSS overall validation samples: {} ===>>.'.format(
+        print('Log loss overall validation samples: {}.'.format(
             validation_log_loss))
         print('Validation set sensitivity {} and specificity {}'.format(
             val_sensitivity, val_specificity))
