@@ -25,11 +25,17 @@ saver = tf.train.Saver()
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    saver.restore(sess, os.path.join(out_dir, config.RESTORE_MODEL_CKPT))
+    if os.path.exists(os.path.join(out_dir, config.RESTORE_MODEL_CKPT + '.index')):
+        saver.restore(sess, os.path.join(out_dir, config.RESTORE_MODEL_CKPT))
 
-    evaluate_test_set(sess, 
-                      test_set,
-                      softmax_prediction,
-                      x)
+        evaluate_test_set(sess, 
+                          test_set,
+                          softmax_prediction,
+                          x)
+        if os.path.exists(config.SOLUTION_FILE_PATH):
+            print("Evaluate generated solution...")
+            evaluate_solution(config.SOLUTION_FILE_PATH)
+    else:
+        print("Checkpoint file {} does not exist in the configured directory {}.".format(
+            config.RESTORE_MODEL_CKPT, out_dir))
 
-evaluate_solution(config.SOLUTION_FILE_PATH)

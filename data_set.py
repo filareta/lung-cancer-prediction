@@ -69,9 +69,6 @@ class DataLoader(object):
         if 'augm' in patient_id:
             patient_id = patient_id.split('-')[0]
         try:
-            # [first class=no cancer=0, second class=cancer=1]
-            # [1, 0]-> no cancer
-            # [0, 1] -> cancer
             clazz = self._labels.get_value(patient_id, config.COLUMN_NAME)
             return clazz
         except KeyError as e:

@@ -147,10 +147,12 @@ with tf.Session() as sess:
 
     sess.run(init)
 
-    if config.RESTORE:
-        print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
+    if config.RESTORE and \
+        os.path.exists(os.path.join(model_out_dir, config.RESTORE_MODEL_CKPT + '.index')):
+        
         saver.restore(sess, os.path.join(model_out_dir, config.RESTORE_MODEL_CKPT))
-    
+        print("Restoring model from last saved state: ", config.RESTORE_MODEL_CKPT)
+
 
     # Add the model graph to TensorBoard
     if not config.RESTORE:

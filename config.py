@@ -2,7 +2,7 @@ import os
 
 # The path points to the original images and is
 # used if a preprocessing step needs to be executed
-ALL_IMGS = 'D:/Fil/stage1'
+ALL_IMGS = 'D:/stage1'
 
 LABELS_INPUT_DIR = './input'
 
@@ -15,7 +15,7 @@ TRAINING_PATIENTS_IDS = LABELS_INPUT_DIR + '/training_data.csv'
 MODELS_STORE_DIR = './models'
 SOLUTION_FILE_PATH = './solution_last.csv'
 REAL_SOLUTION_CSV = './input/stage1_solution.csv'
-RESTORE_MODEL_CKPT = 'model_lungs60.ckpt'
+RESTORE_MODEL_CKPT = 'model_best_sensitivity.ckpt'
 SUMMARIES_DIR = './summaries/model_summary'
 RESTORE = False
 START_STEP = 1
@@ -23,8 +23,6 @@ START_STEP = 1
 COLUMN_NAME = 'cancer'
 ID_COLUMN_NAME = 'id'
 
-# [1, 0]-> no cancer
-# [0, 1] -> cancer
 CANCER_CLS = 1
 NO_CANCER_CLS = 0
 
@@ -38,13 +36,12 @@ BATCH_SIZE = 1
 NUM_CHANNELS = 1
 N_CLASSES = 2
 
-
 # Preprocessing options used for the defined models
 BASELINE_PREPROCESS = 0
 MORPHOLOGICAL_OPERATIONS = 1
 WATERSHED = 2
 
-FETCHED_DATA_DIR = './fetch_data/'
+FETCHED_DATA_DIR = './fetch_data'
 
 # Configuration for the buckets with preprocessed images
 # to download the data from
@@ -115,4 +112,6 @@ download_images = not os.path.exists(SEGMENTED_LUNGS_DIR)
 # Use for downloading preprocessed images from the
 # cloud buckets
 PROJECT_NAME = 'lung-cancer-tests'
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] =  FETCHED_DATA_DIR + 'lung-cancer-tests-168b7b36ab99.json'
+CREDENTIALS_DIR = './fetch_data'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] =  os.path.join(CREDENTIALS_DIR,
+	'lung-cancer-tests-168b7b36ab99.json')
