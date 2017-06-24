@@ -85,7 +85,3 @@ def collect_images(bucket_name, project_name, working_dir='./'):
     print(concurrent.futures.wait(futures)) # By defaults waits for all
     print("Shutdown and wait for processes!")
     executor.shutdown(wait=True)
-
-
-
-    
