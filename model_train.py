@@ -141,6 +141,9 @@ def export_evaluation_summary(log_loss_value,
 
 # Launch the graph
 with tf.Session() as sess:
+    if not os.path.exists(config.SUMMARIES_DIR):
+        os.makedirs(config.SUMMARIES_DIR)
+        
     train_writer = tf.summary.FileWriter(os.path.join(config.SUMMARIES_DIR, 'train'))
     validation_writer = tf.summary.FileWriter(os.path.join(config.SUMMARIES_DIR, 
                                                            'validation'))
