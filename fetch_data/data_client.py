@@ -43,7 +43,10 @@ def list_bucket(bucket):
     return all_objects
 
 
-def collect_blobs_chunk(blobs, bucket, working_dir):
+def collect_blobs_chunk(blobs, project_name, bucket_name, working_dir):
+    client = storage.Client(project=project_name)
+    bucket = client.get_bucket(bucket_name)
+
     for blob_item in blobs:
         blob = Blob(blob_item, bucket)
         complete_path = os.path.join(working_dir, blob_item)
@@ -52,17 +55,16 @@ def collect_blobs_chunk(blobs, bucket, working_dir):
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
         with open(complete_path, 'wb') as file_obj:
-
-            blob.download_to_file(file_obj)
-            print("Stored blob path: ", complete_path)
+            try:
+                blob.download_to_file(file_obj)
+                print("Stored blob path: ", complete_path)
+            except Exception as e:
+                print("Downloading {} failed with {}.".format(complete_path, e))
 
 
 def collect_images(bucket_name, project_name, working_dir='./'):
     all_blobs = [item['name'] for item in list_bucket(bucket_name)]
-
-    client = storage.Client(project=project_name)
-    bucket = client.get_bucket(bucket_name)
-
+    
     chunked_data = np.array_split(all_blobs, NUM_PROCESSES)
     print("Number of processes: {}, total chunks of data {}!".format(
         NUM_PROCESSES, len(chunked_data)))
@@ -72,9 +74,10 @@ def collect_images(bucket_name, project_name, working_dir='./'):
     futures = []
     for i, blob_chunk in enumerate(chunked_data):
         try:
-            f = executor.submit(collect_blobs_chunk, 
-                                blob_chunk, 
-                                bucket, 
+            f = executor.submit(collect_blobs_chunk,
+                                blob_chunk,
+                                project_name,
+                                bucket_name, 
                                 working_dir)
             print("Submit {} batch to executor!".format(i))
             futures.append(f)
