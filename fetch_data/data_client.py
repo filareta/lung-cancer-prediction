@@ -1,10 +1,11 @@
 import os
+import httplib2
 import multiprocessing
 import concurrent.futures
 import numpy as np
 
 from google.cloud import storage
-from google.cloud.storage import Blob
+from google.cloud.credentials import get_credentials
 
 import googleapiclient.discovery
 
@@ -44,11 +45,13 @@ def list_bucket(bucket):
 
 
 def collect_blobs_chunk(blobs, project_name, bucket_name, working_dir):
-    client = storage.Client(project=project_name)
+    http = httplib2.Http()
+    client = storage.Client(project=project_name, 
+        credentials=get_credentials(), _http=http)
     bucket = client.get_bucket(bucket_name)
 
     for blob_item in blobs:
-        blob = Blob(blob_item, bucket)
+        blob = storage.Blob(blob_item, bucket)
         complete_path = os.path.join(working_dir, blob_item)
         dir_name = os.path.dirname(complete_path)
 
