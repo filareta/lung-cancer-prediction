@@ -25,12 +25,12 @@
    * **sklearn**
    * **pandas**
    * **imutils**
-   * ** tensorflow**
-   * ** google-api-python-client**
-   * ** google-cloud-storage**
+   * **tensorflow**
+   * **google-api-python-client**
+   * **google-cloud-storage**
    * **opencv** module for python
 
-   All of the modules instead of tensorflow and cv2 could be easily installed using either 
+   All of the modules instead of tensorflow, cv2 and scikit-image could be easily installed using either 
   
 ```
 #!shell
@@ -48,9 +48,9 @@
      conda install <module_name>
 ```
    
-   Though some of the modules are recommended to be installed using conda, since Anaconda is hadling some of the environment issues and provides precompiled binaries for the modules.
+   Though some of the modules are required to be installed using conda, since Anaconda is hadling some of the environment issues and provides precompiled binaries for the modules.
 
-   For example:
+   Installing scikit-image:
 
 ```
 #!shell
@@ -86,7 +86,7 @@
 
      
 
-   If you are running on windows you should specify the python version to be 3.5 when creating the environment.
+   You should specify the python version to be 3.5 when creating the environment.
 
 
    Creating GPU tensorflow environment:
