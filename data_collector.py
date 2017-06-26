@@ -5,12 +5,14 @@ import fetch_data.data_client as client
 
 
 def should_download_images(configured_path, required_count):
+    if not os.path.exists(configured_path):
+        return True
+
     files_count = len([name for name in os.listdir(configured_path)
                        if os.path.isfile(os.path.join(configured_path, name))])
     
     print("Number of existing images is {}.".format(files_count))
-    return (not os.path.exists(configured_path) or 
-            files_count < required_count)
+    return files_count < required_count
 
 
 if __name__ == '__main__':
