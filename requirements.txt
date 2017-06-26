@@ -9,7 +9,5 @@ oauth2client == 4.1.1
 pandas == 0.19.2
 protobuf == 3.3.0
 pydicom == 0.9.9
-scipy == 0.18.1
 sklearn == 0.0
-scikit_image == 0.12.3
 tensorflow_gpu == 1.0.0
