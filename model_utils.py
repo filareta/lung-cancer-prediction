@@ -191,11 +191,11 @@ def evaluate_test_set(sess,
             else:
                 print("Corrupted test image, incorrect shape for patient {}".format(
                     patient))
-    except Exception as e:
-        print("Storing results failed with: {}".format(e))
 
-    if export_csv:
-        store_to_csv(patients, probs, config.SOLUTION_FILE_PATH)
+        if export_csv:
+            store_to_csv(patients, probs, config.SOLUTION_FILE_PATH)
+    except Exception as e:
+        print("Storing results failed with: {} Probably solution file is incomplete.".format(e))
 
 
 def evaluate_solution(sample_solution, with_merged_report=True):

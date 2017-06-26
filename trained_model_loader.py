@@ -35,6 +35,8 @@ with tf.Session() as sess:
         if os.path.exists(config.SOLUTION_FILE_PATH):
             print("Evaluate generated solution...")
             evaluate_solution(config.SOLUTION_FILE_PATH)
+        else:
+          print("Solution file was not generated, check if test data is complete...")
     else:
         print("Checkpoint file {} does not exist in the configured directory {}.".format(
             config.RESTORE_MODEL_CKPT, out_dir))

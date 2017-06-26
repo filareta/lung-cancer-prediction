@@ -10,4 +10,3 @@ pandas == 0.19.2
 protobuf == 3.3.0
 pydicom == 0.9.9
 sklearn == 0.0
-tensorflow_gpu == 1.0.0
