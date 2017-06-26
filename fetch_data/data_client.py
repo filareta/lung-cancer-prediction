@@ -50,6 +50,11 @@ def collect_images(bucket_name, project_name, working_dir='./'):
 
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
+
+        if os.path.exists(complete_path):
+            print("Skipping {} since it already exists.".format(blob_item))
+            continue
+            
         with open(complete_path, 'wb') as file_obj:
             try:
                 blob.download_to_file(file_obj)

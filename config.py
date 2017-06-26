@@ -106,7 +106,7 @@ SEGMENTED_LUNGS_DIR = preprocessed_imgs[SEGMENTATION_ALGO]
 
 BUCKET_IN_USE = bucket_names[SEGMENTATION_ALGO]
 
-download_images = not os.path.exists(SEGMENTED_LUNGS_DIR)
+REQUIRED_IMGS_COUNT = 1595
 
 # Google cloud API client related
 # Use for downloading preprocessed images from the
@@ -114,4 +114,4 @@ download_images = not os.path.exists(SEGMENTED_LUNGS_DIR)
 PROJECT_NAME = 'lung-cancer-tests'
 CREDENTIALS_DIR = './fetch_data'
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] =  os.path.join(CREDENTIALS_DIR,
-	'lung-cancer-tests-168b7b36ab99.json')
+    'lung-cancer-tests-168b7b36ab99.json')
