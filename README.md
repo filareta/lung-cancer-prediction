@@ -33,8 +33,6 @@
    All of the modules instead of tensorflow, cv2 and scikit-image could be easily installed using either 
   
 ```
-#!shell
-
       pip install <module_name>
 ```
 
@@ -43,8 +41,6 @@
 
  
 ```
-#!shell
-
      conda install <module_name>
 ```
    
@@ -53,8 +49,6 @@
    Installing scikit-image:
 
 ```
-#!shell
-
      conda install scikit-image
 ```
 
@@ -62,7 +56,6 @@
      
      
 ```
-#!shell
 
      conda install -c menpo opencv3
 
@@ -75,8 +68,6 @@
 
     
 ```
-#!shell
-
      conda create --name tensorflow python=3.5
      activate tensorflow
      conda install jupyter
@@ -93,8 +84,6 @@
   
      
 ```
-#!shell
-
      conda create --name tensorflow-gpu python=3.5
      activate tensorflow-gpu
      conda install jupyter
@@ -119,8 +108,6 @@
 
 
 ```
-#!shell
-
       pip install -r requirements.txt
 ```
 
@@ -129,8 +116,6 @@
 
 
 ```
-#!shell
-
      conda install <module-name>
 ```
 
@@ -142,8 +127,6 @@ To start processing the dicom files you need to run:
 
    
 ```
-#!shell
-
      python preprocess_dicoms.py
 ```
 
@@ -161,8 +144,6 @@ To start processing the dicom files you need to run:
 
 
 ```
-#!shell
-
      python data_collector.py
 ```
   
@@ -186,8 +167,6 @@ To start processing the dicom files you need to run:
  
 
 ```
-#!shell
-
      python model_train.py
 ```
 
@@ -208,8 +187,6 @@ To start processing the dicom files you need to run:
  you must change the RESTORE_MODEL_CKPT to point to the checkpoint file with the desired name. Then simply execute from the command line:
  
 ```
-#!shell
-
      python trained_model_loader.py
 ```
 
